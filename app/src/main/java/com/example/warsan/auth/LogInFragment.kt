@@ -32,7 +32,7 @@ class LogInFragment : Fragment() {
         val phoneNumber = binding.tfPhoneNumber.text?.trim().toString()
         val password = binding.tfPassword.text?.trim().toString()
 
-        return phoneNumber.isNotEmpty() || password.isNotEmpty()
+        return phoneNumber.isNotEmpty() && password.isNotEmpty()
 
     }
 
