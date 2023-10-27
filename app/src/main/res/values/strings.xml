@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">Warsan</string>
+    <string name="app_name">RAJO</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="rajo_logo">RAJO logo</string>
+    <string name="welcome_to_rajo">Welcome to Rajo</string>
+    <string name="headline">Save a child, save a nation!</string>
+    <string name="get_started">Get Started</string>
+    <string name="login_to_rajo">Login to Rajo</string>
+    <string name="enter_your_phone_number">Enter your phone number</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="forgot_password">Forgot Password?</string>
 </resources>
