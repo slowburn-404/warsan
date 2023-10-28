@@ -1,18 +1,28 @@
 package com.example.warsan.auth
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import com.example.warsan.R
 import com.example.warsan.databinding.FragmentLogInBinding
+import com.google.android.material.textfield.TextInputLayout
 
 class LogInFragment : Fragment() {
 
     private var _binding: FragmentLogInBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var phoneNumberLayout: TextInputLayout
+    private lateinit var passwordLayout: TextInputLayout
+    private lateinit var phoneNumber: EditText
+    private lateinit var password: EditText
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -20,30 +30,61 @@ class LogInFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentLogInBinding.inflate(inflater, container, false)
 
+        phoneNumberLayout = binding.layoutPhoneNumber
+        passwordLayout = binding.layoutPassword
+        phoneNumber = binding.tfPhoneNumber
+        password = binding.tfPassword
+
+
         binding.btLogin.setOnClickListener {
             login()
         }
+
+        phoneNumber.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+                phoneNumberLayout.error = null
+            }
+        })
+        password.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+                passwordLayout.error = null
+            }
+        })
 
 
         return binding.root
     }
 
     private fun textFieldNullCheck(): Boolean {
-        val phoneNumber = binding.tfPhoneNumber.text?.trim().toString()
-        val password = binding.tfPassword.text?.trim().toString()
+        val etPhoneNumber = phoneNumber.text?.trim().toString()
+        val etPassword = password.text?.trim().toString()
 
-        return phoneNumber.isNotEmpty() && password.isNotEmpty()
+        return etPhoneNumber.isNotEmpty() && etPassword.isNotEmpty()
 
     }
 
     private fun login() {
-        val phoneNumberLayout = binding.layoutPhoneNumber
-        val passwordLayout = binding.layoutPassword
-        val phoneNumber = binding.tfPhoneNumber.text?.trim().toString()
-        val password = binding.tfPassword.text?.trim().toString()
+
         if (textFieldNullCheck()) {
             phoneNumberLayout.error = null
             passwordLayout.error = null
+
             Toast.makeText(
                 requireContext(), "Success", Toast.LENGTH_SHORT
             ).show()
