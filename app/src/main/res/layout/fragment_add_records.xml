@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".children.immunization.AddRecordsFragment">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/aplAddRecords"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/tabAddRecords"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="0dp"
+            app:layout_collapseMode="pin"
+            app:navigationIcon="@drawable/navigate_up"
+            app:subtitle="1 month old"
+            app:subtitleCentered="true"
+            app:title="Clever Kaitaramirwa"
+            app:titleCentered="true"
+            app:titleTextAppearance="@style/TextAppearance.App.TitleMedium" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:hint="@string/vaccine"
+            android:layout_marginTop="40dp"
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#D9D9D9"
+                android:hint="@string/vaccine"
+                android:inputType="none"
+                app:simpleItems="@array/vaccines_list" />
+
+</com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/tvDateAdministeredTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/date_administered"
+            android:textColor="@color/black"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_gravity="center_horizontal"
+            android:padding="8dp"
+            android:layout_marginTop="8dp"
+            />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#D9D9D9"
+            android:layout_gravity="center_horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_calendar"
+                android:padding="8dp"/>
+            <TextView
+                android:id="@+id/tvDateAdministered"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="01/01/2023"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_gravity="center_horizontal"
+                android:padding="8dp"
+                android:layout_marginTop="8dp"
+                />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvNextDueDateTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next_due_date"
+            android:textColor="@color/black"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_gravity="center_horizontal"
+            android:padding="8dp"
+            android:layout_marginTop="8dp"
+            />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#D9D9D9"
+            android:layout_gravity="center_horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_calendar"
+                android:padding="8dp"/>
+            <TextView
+                android:id="@+id/tvNextDueDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="22/03/2023"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_gravity="center_vertical"
+                android:padding="8dp"
+                />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btSubmit"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="200dp"
+            android:text="@string/submit"/>
+
+        
+
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

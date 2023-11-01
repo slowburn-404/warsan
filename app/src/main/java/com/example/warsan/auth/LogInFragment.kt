@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
+import androidx.navigation.fragment.findNavController
 import com.example.warsan.R
 import com.example.warsan.databinding.FragmentLogInBinding
 import com.google.android.material.textfield.TextInputLayout
@@ -39,33 +40,7 @@ class LogInFragment : Fragment() {
         binding.btLogin.setOnClickListener {
             login()
         }
-
-        phoneNumber.addTextChangedListener(object: TextWatcher{
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-                phoneNumberLayout.error = null
-            }
-        })
-        password.addTextChangedListener(object: TextWatcher{
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-                passwordLayout.error = null
-            }
-        })
+        clearErrorOnTextChange()
 
 
         return binding.root
@@ -88,11 +63,41 @@ class LogInFragment : Fragment() {
             Toast.makeText(
                 requireContext(), "Success", Toast.LENGTH_SHORT
             ).show()
+            findNavController().navigate(R.id.action_logInFragment_to_retrieveGuardianFragment)
         } else {
             phoneNumberLayout.error = "Phone number cannot be empty"
             passwordLayout.error = "Password cannot be empty"
         }
 
+    }
+
+    private fun clearErrorOnTextChange() {
+        phoneNumber.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+                phoneNumberLayout.error = null
+            }
+        })
+        password.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+                passwordLayout.error = null
+            }
+        })
     }
 
     override fun onDestroyView() {

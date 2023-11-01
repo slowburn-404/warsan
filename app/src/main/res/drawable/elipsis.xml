@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- First Ellipse -->
+    <item
+        android:right="50dp">
+        <shape
+            android:shape="oval">
+            <solid android:color="#8F70D1AA" />
+            <size
+                android:width="100dp"
+                android:height="100dp" />
+        </shape>
+    </item>
+
+    <!-- Second Ellipse (Overlapping) -->
+    <item
+        android:left="50dp">
+        <shape
+            android:shape="oval">
+            <solid android:color="#8F70D1AA" />
+            <size
+                android:width="100dp"
+                android:height="100dp" />
+        </shape>
+    </item>
+</layer-list>
