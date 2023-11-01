@@ -9,6 +9,7 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="materialButtonStyle">@style/Widget.App.Button</item>
         <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
+        <item name="circularProgressIndicatorStyle">@style/Widget.App.CircularProgressIndicator</item>
     </style>
 
     <style name="Theme.Warsan" parent="Base.Theme.Warsan" />
@@ -54,7 +55,14 @@
         <item name="colorContainer">@color/main_color</item>
         <item name="colorOnContainer">@color/white</item>
     </style>
-    
-    <!--======Exposed drop down menu=====-->
+
+    <!--======Circular progress indicator=====-->
+    <style name="Widget.App.CircularProgressIndicator" parent="Widget.Material3.CircularProgressIndicator">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.CircularProgressIndicator</item>
+    </style>
+
+    <style name="ThemeOverlay.App.CircularProgressIndicator" parent="">
+        <item name="colorPrimary">@color/main_color</item>
+    </style>
 
 </resources>

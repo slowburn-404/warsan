@@ -37,4 +37,9 @@
     <string name="next_due_date">Next Due Date</string>
     <string name="date_administered">Date Administered</string>
     <string name="select_a_vaccine">Select a vaccine</string>
+    <string name="login_failed">Failed</string>
+    <string name="incorrect_details">Incorrect details</string>
+    <string name="login_successful">Login Successful</string>
+    <string name="phone_number_is_required">Phone number is required</string>
+    <string name="password_is_required">Password is required</string>
 </resources>
