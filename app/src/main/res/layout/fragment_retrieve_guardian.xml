@@ -44,13 +44,25 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+   <FrameLayout
+       android:layout_width="320dp"
+       android:layout_height="wrap_content"
+       android:layout_gravity="center_horizontal"
+       android:layout_marginTop="8dp">
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btRetrieveGuardian"
         android:layout_width="320dp"
         android:layout_height="wrap_content"
+        android:text="@string/retrieve_guardian"/>
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/retrieveGuardianCircularIndicator"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="8dp"
-        android:text="@string/retrieve_guardian" />
+        android:indeterminate="true"
+        app:indicatorColor="@color/white"/>
+   </FrameLayout>
 
     <TextView
         android:id="@+id/txtRegisterNewGuardian"

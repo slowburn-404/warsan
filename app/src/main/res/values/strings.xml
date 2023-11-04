@@ -42,4 +42,6 @@
     <string name="login_successful">Login Successful</string>
     <string name="phone_number_is_required">Phone number is required</string>
     <string name="password_is_required">Password is required</string>
+    <string name="guardian_non_existent">Guardian not found!</string>
+    <string name="guardian_children_nonexistent">Guardian has no children</string>
 </resources>
