@@ -3,11 +3,13 @@ package com.example.warsan.network
 import com.example.warsan.models.AddChildRequest
 import com.example.warsan.models.AddChildResponse
 import com.example.warsan.models.AddGuardianRequest
+import com.example.warsan.models.Child
 import com.example.warsan.models.GuardianResponse
 import com.example.warsan.models.Location
 import com.example.warsan.models.LogInRequest
 import com.example.warsan.models.LogInResponse
 import com.example.warsan.models.SuccessResponse
+import com.example.warsan.models.VaccinatedChild
 import com.example.warsan.models.VaccineData
 import com.example.warsan.models.Vaccines
 import retrofit2.Call
@@ -31,5 +33,7 @@ interface WarsanAPI {
     fun getVaccines(): Call<List<Vaccines>>
     @POST("api/immunization-records/")
     fun addRecords(@Body addRecordRequestBody: VaccineData): Call<VaccineData>
+    @GET("api/immunization-records/{child}")
+    fun getImmunizationRecords(@Path("child") childID: Int): Call<List<VaccinatedChild>>
 
 }

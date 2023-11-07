@@ -106,6 +106,12 @@
         <action
             android:id="@+id/action_immunizationRecordsFragment_to_addRecordsFragment2"
             app:destination="@id/addRecordsFragment" />
+        <argument
+            android:name="childObject"
+            app:argType="com.example.warsan.models.AddChildResponseParcelable" />
+        <action
+            android:id="@+id/action_immunizationRecordsFragment_to_zeroToSixMonthsFragment"
+            app:destination="@id/zeroToSixMonthsFragment" />
     </fragment>
     <fragment
         android:id="@+id/addRecordsFragment"
@@ -116,7 +122,16 @@
             android:id="@+id/action_addRecordsFragment_to_immunizationRecordsFragment3"
             app:destination="@id/immunizationRecordsFragment" />
         <argument
-            android:name="childID"
-            android:defaultValue="@null" />
+            android:name="childObject"
+            app:argType="com.example.warsan.models.AddChildResponseParcelable" />
+    </fragment>
+    <fragment
+        android:id="@+id/zeroToSixMonthsFragment"
+        android:name="com.example.warsan.children.immunization.ZeroToSixMonthsFragment"
+        android:label="fragment_zero_to_six_months"
+        tools:layout="@layout/fragment_zero_to_six_months" >
+        <argument
+            android:name="childObject"
+            app:argType="com.example.warsan.models.AddChildResponseParcelable" />
     </fragment>
 </navigation>

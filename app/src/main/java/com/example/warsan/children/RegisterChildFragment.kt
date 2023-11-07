@@ -22,6 +22,7 @@ import com.example.warsan.R
 import com.example.warsan.databinding.FragmentRegisterChildBinding
 import com.example.warsan.models.AddChildRequest
 import com.example.warsan.models.AddChildResponse
+import com.example.warsan.models.AddChildResponseParcelable
 import com.example.warsan.models.SuccessResponse
 import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
@@ -236,11 +237,14 @@ class RegisterChildFragment : Fragment() {
                         Toast.makeText(requireContext(), "Child has been added", Toast.LENGTH_SHORT)
                             .show()
                         //pass child ID to add records fragment
-                        data?.id.let {
-                            val navigateTAddRecordsFragment =
-                                RegisterChildFragmentDirections.actionRegisterChildFragmentToAddRecordsFragment(
-                                    data?.id.toString()
-                                )
+
+                        val navigateTAddRecordsFragment = data?.let {
+                            val childObject = AddChildResponseParcelable(data.id, data.firstName, data.lastName, data.dateOfBirth)
+                            RegisterChildFragmentDirections.actionRegisterChildFragmentToAddRecordsFragment(
+                                childObject = childObject
+                            )
+                        }
+                        navigateTAddRecordsFragment?.let {
                             navController.navigate(navigateTAddRecordsFragment)
                         }
                     } else {

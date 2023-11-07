@@ -12,7 +12,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.warsan.R
+import com.example.warsan.children.immunization.ImmunizationRecordsFragmentArgs
 import com.example.warsan.databinding.FragmentChildrenListBinding
+import com.example.warsan.models.AddChildResponseParcelable
 import com.example.warsan.models.Child
 import com.example.warsan.models.ChildDetails
 import com.example.warsan.models.GuardianResponse
@@ -122,11 +124,13 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
 
                 } else if (response.body() == null) {
                     progressIndicator.hide()
+                    binding.fabAddChild.isEnabled = true
                     binding.rvAddChild.visibility = View.GONE
                     binding.childrenNonexistent.visibility = View.VISIBLE
 
                 } else {
                     progressIndicator.hide()
+                    binding.fabAddChild.isEnabled = true
                     Toast.makeText(requireContext(), R.string.login_failed, Toast.LENGTH_SHORT)
                         .show()
 
@@ -152,7 +156,23 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
 
 
     override fun onItemClick(item: Child) {
-        findNavController().navigate(R.id.action_childrenListFragment_to_immunizationRecordsFragment)
+        childrenListFromAPI?.find { childDetails ->
+            (childDetails.firstName + " " + childDetails.lastName) == item.name
+        }?.let { childDetails ->
+            val childObject = AddChildResponseParcelable(
+                childDetails.id,
+                childDetails.firstName,
+                childDetails.lastName,
+                childDetails.dateOfBirth
+            )
+            val action =
+                ChildrenListFragmentDirections.actionChildrenListFragmentToImmunizationRecordsFragment(
+                    childObject = childObject
+                )
+            navController.navigate(action)
+        }
+
+
     }
 
 }

@@ -116,14 +116,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_margin="8dp"/>
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btLogin"
-            android:layout_width="320dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:text="@string/update_records"/>
     </LinearLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btLogin"
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="16dp"
+        android:text="@string/update_records"/>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -15,7 +15,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.warsan.children.ChildrenListFragmentDirections
 import com.example.warsan.databinding.FragmentAddRecordsBinding
+import com.example.warsan.models.AddChildResponseParcelable
 import com.example.warsan.models.AdministrationSet
 import com.example.warsan.models.VaccineData
 import com.example.warsan.models.Vaccines
@@ -64,8 +66,11 @@ class AddRecordsFragment : Fragment() {
         progressIndicator = binding.vaccineProgressIndicator
         progressIndicator.hide()
 
+        binding.tabAddRecords.title = "${args.childObject.firstName} ${args.childObject.lastName}"
+        binding.tabAddRecords.subtitle = args.childObject.dateOfBirth
+
         binding.btSubmit.setOnClickListener {
-           sendImmunizationRecordToAPI()
+            sendImmunizationRecordToAPI()
         }
 
         dateAdmin.setOnClickListener {
@@ -93,6 +98,8 @@ class AddRecordsFragment : Fragment() {
 
                 selectedDateAdmin = selectedDate
                 selectedNextDueDate = selectedDate
+
+
             },
             year, month, day
         )
@@ -150,7 +157,7 @@ class AddRecordsFragment : Fragment() {
 
     private fun sendImmunizationRecordToAPI() {
         val selectedVaccine = getSelectedVaccine()
-        btSubmit.isEnabled = false
+
 
         if (selectedVaccine != null) {
             val vaccineData = prepareVaccineData()
@@ -159,6 +166,7 @@ class AddRecordsFragment : Fragment() {
             val call: Call<VaccineData> = warsanAPI.addRecords(vaccineData)
 
             progressIndicator.show() // Show a progress indicator while the request is being sent
+            btSubmit.isEnabled = false
 
             call.enqueue(object : Callback<VaccineData> {
                 override fun onResponse(call: Call<VaccineData>, response: Response<VaccineData>) {
@@ -168,10 +176,26 @@ class AddRecordsFragment : Fragment() {
                         val responseData = response.body()
                         // Handle a successful response, if needed
                         Log.d("WARSANAPIRESPONSE", responseData.toString())
-                        Toast.makeText(requireContext(), "Immunization Record Added", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Immunization Record Added",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        val childObject = AddChildResponseParcelable(args.childObject.id, args.childObject.firstName, args.childObject.lastName, args.childObject.dateOfBirth)
+
+                        val action =
+                            AddRecordsFragmentDirections.actionAddRecordsFragmentToImmunizationRecordsFragment3(
+                                childObject = childObject
+                            )
+                        navController.navigate(action)
                     } else {
                         // Handle errors or failed response, if needed
-                        Toast.makeText(requireContext(), "Immunization record with this child already exists.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Immunization record with this child already exists.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         Log.e("WARSANAPIERROR", "Failed to send immunization record")
                     }
                 }
@@ -193,7 +217,7 @@ class AddRecordsFragment : Fragment() {
 
     private fun prepareVaccineData(): VaccineData {
         // Create a VaccineData object with the required data
-        val childId = args.childID!!.toInt()
+        val childId = args.childObject.id
         val status = "Taken"
         val nextDateOfAdministration = selectedNextDueDate
         val selectedVaccine = getSelectedVaccine()
@@ -207,7 +231,6 @@ class AddRecordsFragment : Fragment() {
         )
 
         return VaccineData(
-            id = 7, // Replace with the actual ID
             administrationSet = administrationSetList,
             status = status,
             nextDateOfAdministration = nextDateOfAdministration,

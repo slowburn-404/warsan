@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import com.example.warsan.R
 import com.example.warsan.databinding.FragmentImmunizationRecordsBinding
@@ -15,6 +16,8 @@ class ImmunizationRecordsFragment : Fragment() {
 
     private var _binding: FragmentImmunizationRecordsBinding? = null
     private val binding get() = _binding!!
+
+    private val args: ImmunizationRecordsFragmentArgs by navArgs()
 
     private lateinit var immunizationRecordsFragments: ArrayList<Fragment>
     private lateinit var immunizationRecordViewPager: ViewPager2
@@ -33,6 +36,10 @@ class ImmunizationRecordsFragment : Fragment() {
         secondDot = binding.inactiveDot
         thirdDot = binding.inactiveDot2
         immunizationRecordViewPager = binding.vpImmunizationRecords
+
+        binding.tabImmunizationRecords.title =
+            "${args.childObject.firstName} ${args.childObject.lastName}"
+        binding.tabImmunizationRecords.subtitle = args.childObject.dateOfBirth
 
 
         immunizationRecordsFragments = arrayListOf(
@@ -68,7 +75,9 @@ class ImmunizationRecordsFragment : Fragment() {
     }
 
     private fun setUpImmunizationRecordViewPagerAdapter() {
+        val chilObject = args.childObject
         val adapter = ImmunizationRecordViewPagerAdapter(
+            chilObject,
             immunizationRecordsFragments, requireActivity().supportFragmentManager, lifecycle
         )
         immunizationRecordViewPager.adapter = adapter
