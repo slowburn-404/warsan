@@ -26,6 +26,7 @@
     <string name="register_a_child">Register a child</string>
     <string name="gender">Gender</string>
     <string name="date_of_birth">Date of birth</string>
+    <string name="date_of_birth_error">Date of birth is required</string>
     <string name="six_months">0–6\n months</string>
     <string name="twelve_months">6–12\n months</string>
     <string name="eighteen_months">12–18\n months</string>
@@ -44,4 +45,6 @@
     <string name="password_is_required">Password is required</string>
     <string name="guardian_non_existent">Guardian not found!</string>
     <string name="guardian_children_nonexistent">Guardian has no children</string>
+    <string name="location_nonexistent">Cannot retrieve locations</string>
+    <string name="children_nonexistent">Guardian has no children</string>
 </resources>

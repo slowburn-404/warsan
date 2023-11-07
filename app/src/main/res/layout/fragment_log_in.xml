@@ -23,13 +23,6 @@
         android:contentDescription="@string/rajo_logo"
         android:src="@drawable/rajologo" />
 
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/progress_circular"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:layout_gravity="center_horizontal"
-        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/login_header"
@@ -80,13 +73,26 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btLogin"
+    <FrameLayout
         android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
-        android:text="@string/login" />
+        android:layout_margin="4dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btLogin"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:text="@string/login"/>
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/loginCircularIndicator"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_horizontal"
+            android:indeterminate="true"/>
+    </FrameLayout>
+
+
 
 
 </LinearLayout>

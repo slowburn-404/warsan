@@ -32,12 +32,13 @@ class ImmunizationRecordsFragment : Fragment() {
         firstDot = binding.activeDot
         secondDot = binding.inactiveDot
         thirdDot = binding.inactiveDot2
+        immunizationRecordViewPager = binding.vpImmunizationRecords
 
 
         immunizationRecordsFragments = arrayListOf(
             ZeroToSixMonthsFragment(), SixToTwelveMonthsFragment(), TwelveToEighteenMonthsFragment()
         )
-        immunizationRecordViewPager = binding.vpImmunizationRecords
+
 
         immunizationRecordViewPager.registerOnPageChangeCallback(object :
             ViewPager2.OnPageChangeCallback() {

@@ -33,14 +33,16 @@
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutVaccine"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:hint="@string/vaccine"
             android:layout_marginTop="40dp"
-    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+            android:hint="@string/vaccine">
 
             <AutoCompleteTextView
+                android:id="@+id/atVaccine"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#D9D9D9"
@@ -48,85 +50,100 @@
                 android:inputType="none"
                 app:simpleItems="@array/vaccines_list" />
 
-</com.google.android.material.textfield.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <TextView
             android:id="@+id/tvDateAdministeredTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/date_administered"
-            android:textColor="@color/black"
-            android:fontFamily="@font/poppins_regular"
             android:layout_gravity="center_horizontal"
-            android:padding="8dp"
             android:layout_marginTop="8dp"
-            />
+            android:fontFamily="@font/poppins_regular"
+            android:padding="8dp"
+            android:text="@string/date_administered"
+            android:textColor="@color/black" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
             android:background="#D9D9D9"
-            android:layout_gravity="center_horizontal">
+            android:orientation="horizontal">
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/icon_calendar"
-                android:padding="8dp"/>
+                android:padding="8dp"
+                android:src="@drawable/icon_calendar" />
+
             <TextView
                 android:id="@+id/tvDateAdministered"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="01/01/2023"
-                android:textColor="@color/black"
-                android:fontFamily="@font/poppins_regular"
                 android:layout_gravity="center_horizontal"
-                android:padding="8dp"
                 android:layout_marginTop="8dp"
-                />
+                android:fontFamily="@font/poppins_regular"
+                android:padding="8dp"
+                android:text="01/01/2023"
+                android:textColor="@color/black" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvNextDueDateTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/next_due_date"
-            android:textColor="@color/black"
-            android:fontFamily="@font/poppins_regular"
             android:layout_gravity="center_horizontal"
-            android:padding="8dp"
             android:layout_marginTop="8dp"
-            />
+            android:fontFamily="@font/poppins_regular"
+            android:padding="8dp"
+            android:text="@string/next_due_date"
+            android:textColor="@color/black" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
             android:background="#D9D9D9"
-            android:layout_gravity="center_horizontal">
+            android:orientation="horizontal">
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/icon_calendar"
-                android:padding="8dp"/>
+                android:padding="8dp"
+                android:src="@drawable/icon_calendar" />
+
             <TextView
                 android:id="@+id/tvNextDueDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="22/03/2023"
-                android:textColor="@color/black"
-                android:fontFamily="@font/poppins_regular"
                 android:layout_gravity="center_vertical"
+                android:fontFamily="@font/poppins_regular"
                 android:padding="8dp"
-                />
+                android:text="22/03/2023"
+                android:textColor="@color/black" />
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btSubmit"
+        <FrameLayout
             android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="200dp"
-            android:text="@string/submit"/>
+            android:layout_marginTop="200dp">
 
-        
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btSubmit"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/submit" />
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/vaccineProgressIndicator"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center_horizontal"
+                android:indeterminate="true" />
+        </FrameLayout>
+
 
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -18,6 +18,7 @@ import com.example.warsan.models.LogInRequest
 import com.example.warsan.models.LogInResponse
 import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputLayout
 import retrofit2.Call
@@ -34,6 +35,7 @@ class LogInFragment : Fragment() {
     private lateinit var phoneNumber: EditText
     private lateinit var password: EditText
     private lateinit var progressBar: CircularProgressIndicator
+    private lateinit var btLogin: MaterialButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -41,18 +43,20 @@ class LogInFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentLogInBinding.inflate(inflater, container, false)
 
-        progressBar = binding.progressCircular
+        progressBar = binding.loginCircularIndicator
         progressBar.hide()
 
         phoneNumberLayout = binding.layoutPhoneNumber
         passwordLayout = binding.layoutPassword
         phoneNumber = binding.tfPhoneNumber
         password = binding.tfPassword
+        btLogin = binding.btLogin
 
 
 
-        binding.btLogin.setOnClickListener {
-            login()
+        btLogin.setOnClickListener {
+            findNavController().navigate(R.id.action_logInFragment_to_retrieveGuardianFragment)
+            //login()
         }
         clearErrorOnTextChange()
 
@@ -74,11 +78,13 @@ class LogInFragment : Fragment() {
             phoneNumberLayout.error = null
             passwordLayout.error = null
 
+            btLogin.isEnabled = false
+
             progressBar.show()
             makeAPICall()
 
 
-        }else{
+        } else {
             phoneNumberLayout.error = getString(R.string.phone_number_is_required)
             passwordLayout.error = getString(R.string.password_is_required)
         }
@@ -116,6 +122,7 @@ class LogInFragment : Fragment() {
             }
         })
     }
+
     private fun makeAPICall() {
         val etPhoneNumber = phoneNumber.text?.trim().toString()
         val etPassword = password.text?.trim().toString()
@@ -136,24 +143,24 @@ class LogInFragment : Fragment() {
                     progressBar.hide()
                     val data: LogInResponse? = response.body()
                     Log.d("WARSANAPIRESPONSE", "$data")
-                    Toast.makeText(requireContext(),
-                        getString(R.string.login_successful), Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(
+                        requireContext(), getString(R.string.login_successful), Toast.LENGTH_SHORT
+                    ).show()
                     findNavController().navigate(R.id.action_logInFragment_to_retrieveGuardianFragment)
                     // Handle the response data here
                 } else if (response.body() == null) {
                     // Handle the error
                     progressBar.hide()
                     Toast.makeText(
-                        requireContext(),
-                        getString(R.string.incorrect_details),
-                        Toast.LENGTH_SHORT
+                        requireContext(), getString(R.string.incorrect_details), Toast.LENGTH_SHORT
                     ).show()
+                    btLogin.isEnabled = true
 
                 } else {
                     progressBar.hide()
                     Toast.makeText(requireContext(), R.string.login_failed, Toast.LENGTH_SHORT)
                         .show()
+                    btLogin.isEnabled = true
                 }
             }
 

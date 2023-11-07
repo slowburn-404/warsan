@@ -75,8 +75,7 @@
         <action
             android:id="@+id/action_retrieveGuardianFragment_to_registerGuardianFragment"
             app:destination="@id/registerGuardianFragment"
-            app:popUpTo="@id/retrieveGuardianFragment"
-            app:popUpToInclusive="true" />
+            app:popUpTo="@id/retrieveGuardianFragment" />
         <action
             android:id="@+id/action_retrieveGuardianFragment_to_childrenListFragment"
             app:destination="@id/childrenListFragment"
@@ -95,6 +94,9 @@
         <action
             android:id="@+id/action_registerChildFragment_to_addRecordsFragment"
             app:destination="@id/addRecordsFragment" />
+        <argument
+            android:name="guardianID"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/immunizationRecordsFragment"
@@ -113,5 +115,8 @@
         <action
             android:id="@+id/action_addRecordsFragment_to_immunizationRecordsFragment3"
             app:destination="@id/immunizationRecordsFragment" />
+        <argument
+            android:name="childID"
+            android:defaultValue="@null" />
     </fragment>
 </navigation>

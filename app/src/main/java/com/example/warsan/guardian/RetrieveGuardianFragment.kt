@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.warsan.R
@@ -52,6 +53,7 @@ class RetrieveGuardianFragment : Fragment() {
 
 
         binding.txtRegisterNewGuardian.setOnClickListener {
+            binding.txtRegisterNewGuardian.setTextColor(ContextCompat.getColor(requireContext(),R.color.main_color))
             navController.navigate(R.id.action_retrieveGuardianFragment_to_registerGuardianFragment)
         }
         binding.btRetrieveGuardian.setOnClickListener {

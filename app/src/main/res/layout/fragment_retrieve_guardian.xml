@@ -33,7 +33,6 @@
         android:hint="@string/phone_number"
         app:boxStrokeColor="@color/tfBorder"
         app:errorEnabled="true"
-        app:prefixText="@string/_25"
         tools:ignore="HardcodedText">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -60,8 +59,7 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="center_horizontal"
-        android:indeterminate="true"
-        app:indicatorColor="@color/white"/>
+        android:indeterminate="true"/>
    </FrameLayout>
 
     <TextView

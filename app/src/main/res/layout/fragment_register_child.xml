@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".children.RegisterChildFragment">
 
-    <com.google.android.material.appbar.AppBarLayout
+   <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/aplRegisterChild"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/child_sex"
+            android:id="@+id/layoutDOB"
             android:layout_width="320dp"
             android:layout_height="50dp"
             android:layout_gravity="center_horizontal"
@@ -105,6 +105,7 @@
                     android:src="@drawable/icon_calendar" />
 
                 <TextView
+                    android:id="@+id/tVDOB"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start|center_vertical"
@@ -116,7 +117,8 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="android:style/Widget.Material3"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:id="@+id/layoutGender"
             android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -127,20 +129,31 @@
             app:startIconDrawable="@drawable/icon_gender">
 
             <AutoCompleteTextView
+                android:id="@+id/atGender"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
                 app:simpleItems="@array/gender_list" />
 
         </com.google.android.material.textfield.TextInputLayout>
+        <FrameLayout
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btSaveChild"
             android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="40dp"
             android:text="@string/save" />
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/genderProgressIndicator"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center_horizontal"
+                android:indeterminate="true"/>
+        </FrameLayout>
 
 
     </LinearLayout>

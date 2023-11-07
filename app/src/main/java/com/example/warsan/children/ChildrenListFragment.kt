@@ -18,6 +18,7 @@ import com.example.warsan.models.ChildDetails
 import com.example.warsan.models.GuardianResponse
 import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -36,6 +37,10 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
 
     private var childrenListFromAPI: List<ChildDetails>? = null
 
+    private lateinit var progressIndicator: CircularProgressIndicator
+
+    private lateinit var guardianID: String
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -45,11 +50,21 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
         _binding = FragmentChildrenListBinding.inflate(inflater, container, false)
 
         navController = findNavController()
+        progressIndicator = binding.childListCircularProgressIndicator
+        progressIndicator.hide()
         childrenList.clear()
         retrieveGuardianFromAPI()
 
         binding.fabAddChild.setOnClickListener {
-            navController.navigate(R.id.action_childrenListFragment_to_registerChildFragment)
+            if (guardianID != null) {
+                navigateToAddChildFragment(guardianID)
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Something went wrong while getting guardian details",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
         binding.tabRegisterGuardian.setNavigationOnClickListener {
             navController.popBackStack()
@@ -64,16 +79,7 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
         childrenListFromAPI?.forEach {
             childrenList.add(Child("${it.firstName} ${it.lastName}", it.dateOfBirth))
             Log.d("ChildrenList", "$childrenList")
-        }/* for (i in 1..1) {
-
-                 childrenList.add(Child("Clever Kaitaramirwa", "1 month old"))
-                 childrenList.add(Child("Pauline Ochieng'", "16 months old"))
-                 childrenList.add(Child("Anfar BashirMohamud", "24 month old"))
-                 childrenList.add(Child("Anfar BashirMohamud", "36 month old"))
-
-             }*/
-
-
+        }
 
         childrenListAdapter = ChildrenListAdapter(childrenList, this)
         binding.rvAddChild.layoutManager = LinearLayoutManager(requireContext())
@@ -89,6 +95,7 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
 
     private fun retrieveGuardianFromAPI() {
         val guardianPhoneNumber = getGuardianPhoneNumber()
+        progressIndicator.show()
         //Create api service
         val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
 
@@ -100,37 +107,47 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
                 call: Call<GuardianResponse>, response: Response<GuardianResponse>
             ) {
                 if (response.isSuccessful) {
-                    //progressIndicator.hide()
+                    progressIndicator.hide()
                     val data: GuardianResponse? = response.body()
                     Log.d("WARSANAPIRESPONSECHILDLIST", "${data?.children}")
 
                     childrenListFromAPI = data?.children
                     addChildrenToRecyclerView(childrenListFromAPI)
 
+                    binding.tabRegisterGuardian.title =
+                        "${data?.guardian?.firstName} ${data?.guardian?.lastName}"
+                    //pass guardian ID
+                    guardianID = data?.guardian?.id.toString()
+
+
                 } else if (response.body() == null) {
-                    // progressIndicator.hide()
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.guardian_children_nonexistent),
-                        Toast.LENGTH_LONG
-                    ).show()
-                    // btRetrieveGuardian.isEnabled = true
+                    progressIndicator.hide()
+                    binding.rvAddChild.visibility = View.GONE
+                    binding.childrenNonexistent.visibility = View.VISIBLE
 
                 } else {
-                    //progressIndicator.hide()
+                    progressIndicator.hide()
                     Toast.makeText(requireContext(), R.string.login_failed, Toast.LENGTH_SHORT)
                         .show()
-                    // btRetrieveGuardian.isEnabled = true
+
                 }
             }
 
             override fun onFailure(call: Call<GuardianResponse>, t: Throwable) {
                 // Handle network or other errors
-                //progressIndicator.hide()
                 Toast.makeText(requireContext(), "${t.message}", Toast.LENGTH_SHORT).show()
                 Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
             }
         })
+    }
+
+    private fun navigateToAddChildFragment(guardianID: String) {
+        val navigate =
+            ChildrenListFragmentDirections.actionChildrenListFragmentToRegisterChildFragment(
+                guardianID
+            )
+        navController.navigate(navigate)
+
     }
 
 
