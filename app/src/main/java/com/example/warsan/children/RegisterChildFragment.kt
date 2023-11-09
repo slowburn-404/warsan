@@ -54,8 +54,6 @@ class RegisterChildFragment : Fragment() {
     private lateinit var tVDOB: TextView
     private lateinit var selectedDOB: String
 
-    private lateinit var guardianID: String
-
     private val args: RegisterChildFragmentArgs by navArgs()
 
 
@@ -78,7 +76,8 @@ class RegisterChildFragment : Fragment() {
         btSaveChild = binding.btSaveChild
         layoutDOB = binding.layoutDOB
         tVDOB = binding.tVDOB
-        guardianID = args.guardianID.toString()
+
+        val guardianID = args.guardianID?.toInt()
 
 
         layoutDOB.setOnClickListener {
@@ -102,8 +101,8 @@ class RegisterChildFragment : Fragment() {
                     "F"
                 }
             }
-            if (dOB != null) {
-                sendChildDetailsToAPI(firstName, lastName, gender, dOB, guardianID.toInt())
+            if (dOB != null && guardianID != null) {
+                sendChildDetailsToAPI(firstName, lastName, gender, dOB, guardianID)
             }
 
 

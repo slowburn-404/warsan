@@ -3,12 +3,13 @@ package com.example.warsan.network
 import com.example.warsan.models.AddChildRequest
 import com.example.warsan.models.AddChildResponse
 import com.example.warsan.models.AddGuardianRequest
-import com.example.warsan.models.Child
 import com.example.warsan.models.GuardianResponse
 import com.example.warsan.models.Location
 import com.example.warsan.models.LogInRequest
 import com.example.warsan.models.LogInResponse
 import com.example.warsan.models.SuccessResponse
+import com.example.warsan.models.UpdateRecordsRequest
+import com.example.warsan.models.UpdateRecordsResponse
 import com.example.warsan.models.VaccinatedChild
 import com.example.warsan.models.VaccineData
 import com.example.warsan.models.Vaccines
@@ -16,6 +17,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface WarsanAPI {
@@ -33,7 +35,9 @@ interface WarsanAPI {
     fun getVaccines(): Call<List<Vaccines>>
     @POST("api/immunization-records/")
     fun addRecords(@Body addRecordRequestBody: VaccineData): Call<VaccineData>
-    @GET("api/immunization-records/{child}")
-    fun getImmunizationRecords(@Path("child") childID: Int): Call<List<VaccinatedChild>>
+    @GET("api/immunization-records/{id}")
+    fun getImmunizationRecords(@Path("id") childID: Int): Call<List<VaccinatedChild>>
+    @PUT("/api/immunization-records/")
+    fun updateImmunizationRecord(@Body updatedRecord: UpdateRecordsRequest): Call<UpdateRecordsResponse>
 
 }

@@ -28,8 +28,6 @@ class ZeroToSixMonthsFragment : Fragment() {
     private var _binding: FragmentZeroToSixMonthsBinding? = null
     private val binding get() = _binding!!
 
-    private val args: ImmunizationRecordsFragmentArgs by navArgs()
-
     private lateinit var immunizationDetailsAdapter: ImmunizationDetailsAdapter
     private var immunizationDetailsList = ArrayList<ImmunizationDetails>()
 
@@ -43,10 +41,20 @@ class ZeroToSixMonthsFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentZeroToSixMonthsBinding.inflate(inflater, container, false)
 
-        immunizationDetailsList.clear()
+        val args: ZeroToSixMonthsFragmentArgs by navArgs()
+        val childObject = args.childObject
+
+
+
         setUpRecyclerViewAdapter()
+        immunizationDetailsList.clear()
         getVaccines()
-        fetchImmunizationRecords()
+
+        fetchImmunizationRecords(childObject.id)
+
+
+
+
 
 
 
@@ -55,14 +63,13 @@ class ZeroToSixMonthsFragment : Fragment() {
     }
 
     private fun setUpRecyclerViewAdapter() {
-                immunizationDetailsAdapter = ImmunizationDetailsAdapter(immunizationDetailsList)
+        immunizationDetailsAdapter = ImmunizationDetailsAdapter(immunizationDetailsList)
         binding.rvZeroToSixMonths.layoutManager = LinearLayoutManager(requireContext())
         binding.rvZeroToSixMonths.setHasFixedSize(true)
         binding.rvZeroToSixMonths.adapter = immunizationDetailsAdapter
     }
 
-    private fun fetchImmunizationRecords() {
-        val childID = 1
+    private fun fetchImmunizationRecords(childID: Int) {
 
         if(childID != null) {
             val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
@@ -90,7 +97,6 @@ class ZeroToSixMonthsFragment : Fragment() {
 
                             updatedImmunizationDetailsList.addAll(immunizationDetailsListForChild)
                         }
-                        immunizationDetailsList.clear()
                         immunizationDetailsList.addAll(updatedImmunizationDetailsList)
 
                         immunizationDetailsAdapter.notifyDataSetChanged()
@@ -127,9 +133,6 @@ class ZeroToSixMonthsFragment : Fragment() {
             ) {
                 if (response.isSuccessful) {
                     val data: List<Vaccines>? = response.body()
-                    Log.d("WARSANAPIRESPONSE", "$data")
-                    Toast.makeText(requireContext(), "Vaccines have been added", Toast.LENGTH_SHORT)
-                        .show()
 
                     data?.let {
                         vaccinesList.clear()

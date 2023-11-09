@@ -1,6 +1,10 @@
 package com.example.warsan.children.immunization
 
+import android.icu.text.SimpleDateFormat
+import android.icu.util.Calendar
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +15,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import com.example.warsan.R
 import com.example.warsan.databinding.FragmentImmunizationRecordsBinding
+import com.example.warsan.models.AddChildResponseParcelable
 
 class ImmunizationRecordsFragment : Fragment() {
 
@@ -37,9 +42,26 @@ class ImmunizationRecordsFragment : Fragment() {
         thirdDot = binding.inactiveDot2
         immunizationRecordViewPager = binding.vpImmunizationRecords
 
+        val childObject = args.childObject
+        val ageInMonths = calculateAgeInMonths(childObject.dateOfBirth)
+
         binding.tabImmunizationRecords.title =
-            "${args.childObject.firstName} ${args.childObject.lastName}"
-        binding.tabImmunizationRecords.subtitle = args.childObject.dateOfBirth
+            "${childObject.firstName} ${childObject.lastName}"
+        if (ageInMonths == 1) {
+            binding.tabImmunizationRecords.subtitle = "$ageInMonths month"
+        } else {
+            binding.tabImmunizationRecords.subtitle = "$ageInMonths months"
+        }
+
+          // Use a Handler to introduce a delay before setting the current item
+    Handler(Looper.getMainLooper()).postDelayed({
+        // Set the current ViewPager item based on the age
+        immunizationRecordViewPager.currentItem = when (ageInMonths) {
+            in 0..5 -> 0 // 0 to 5 months, inclusive
+            in 6..11 -> 1 // 6 to 11 months, inclusive
+            else -> 2 // 12 months and above
+        }
+    }, 100) // Delay for 100 milliseconds
 
 
         immunizationRecordsFragments = arrayListOf(
@@ -67,7 +89,18 @@ class ImmunizationRecordsFragment : Fragment() {
             immunizationRecordViewPager.currentItem = 2
         }
         binding.btLogin.setOnClickListener {
-            findNavController().navigate(R.id.action_immunizationRecordsFragment_to_addRecordsFragment2)
+            val childObject = AddChildResponseParcelable(
+                args.childObject.id,
+                args.childObject.firstName,
+                args.childObject.firstName,
+                args.childObject.firstName
+            )
+            val action =
+                ImmunizationRecordsFragmentDirections.actionImmunizationRecordsFragmentToUpdateRecordsFragment(
+                    childObject
+                )
+
+            findNavController().navigate(action)
         }
 
 
@@ -76,6 +109,8 @@ class ImmunizationRecordsFragment : Fragment() {
 
     private fun setUpImmunizationRecordViewPagerAdapter() {
         val chilObject = args.childObject
+        val bundle = Bundle()
+        bundle.putParcelable("childObject", chilObject)
         val adapter = ImmunizationRecordViewPagerAdapter(
             chilObject,
             immunizationRecordsFragments, requireActivity().supportFragmentManager, lifecycle
@@ -117,6 +152,21 @@ class ImmunizationRecordsFragment : Fragment() {
             }
 
         }
+    }
+
+    private fun calculateAgeInMonths(dateOfBirth: String): Int {
+        // Parse the date of birth
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val dob = Calendar.getInstance()
+        dob.time = dateFormat.parse(dateOfBirth)!!
+
+        // Get the current date
+        val currentDate = Calendar.getInstance()
+
+        // Calculate the age in months
+
+        return (currentDate[Calendar.YEAR] - dob[Calendar.YEAR]) * 12 +
+                currentDate[Calendar.MONTH] - dob[Calendar.MONTH]
     }
 
 

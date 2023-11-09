@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,14 +12,16 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.warsan.children.ChildrenListFragmentDirections
-import com.example.warsan.databinding.FragmentAddRecordsBinding
+import com.example.warsan.R
+import com.example.warsan.databinding.FragmentUpdateRecordsBinding
 import com.example.warsan.models.AddChildResponseParcelable
 import com.example.warsan.models.AdministrationSet
+import com.example.warsan.models.UpdateRecordsRequest
+import com.example.warsan.models.UpdateRecordsResponse
+import com.example.warsan.models.VaccineAdministrationSet
 import com.example.warsan.models.VaccineData
 import com.example.warsan.models.Vaccines
 import com.example.warsan.network.RetrofitClient
@@ -30,9 +33,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class AddRecordsFragment : Fragment() {
+class UpdateRecordsFragment : Fragment() {
 
-    private var _binding: FragmentAddRecordsBinding? = null
+    private var _binding: FragmentUpdateRecordsBinding? = null
     private val binding get() = _binding!!
 
     private val args: AddRecordsFragmentArgs by navArgs()
@@ -51,11 +54,15 @@ class AddRecordsFragment : Fragment() {
     private val vaccinesList = mutableListOf<Vaccines>()
     private lateinit var vaccinesAdapter: ArrayAdapter<String>
 
+
+
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
-        _binding = FragmentAddRecordsBinding.inflate(inflater, container, false)
+        _binding = FragmentUpdateRecordsBinding.inflate(inflater, container, false)
 
         navController = findNavController()
         layoutVaccine = binding.layoutVaccine
@@ -80,9 +87,9 @@ class AddRecordsFragment : Fragment() {
             getDateOfBirth(nextDueDate)
         }
 
+
         return binding.root
     }
-
 
     private fun getDateOfBirth(textView: TextView) {
         val calendar = Calendar.getInstance()
@@ -106,7 +113,6 @@ class AddRecordsFragment : Fragment() {
 
         datePickerDialog.show()
     }
-
     private fun getVaccines() {
         val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
         val call: Call<List<Vaccines>> = warsanAPI.getVaccines()
@@ -145,7 +151,6 @@ class AddRecordsFragment : Fragment() {
             }
         })
     }
-
     private fun setAutoCompleteTextViewAdapter() {
         vaccinesAdapter = ArrayAdapter(
             requireContext(),
@@ -154,7 +159,6 @@ class AddRecordsFragment : Fragment() {
         )
         atVaccine.setAdapter(vaccinesAdapter)
     }
-
     private fun sendImmunizationRecordToAPI() {
         val selectedVaccine = getSelectedVaccine()
 
@@ -163,13 +167,13 @@ class AddRecordsFragment : Fragment() {
             val vaccineData = prepareVaccineData()
 
             val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
-            val call: Call<VaccineData> = warsanAPI.addRecords(vaccineData)
+            val call: Call<UpdateRecordsResponse> = warsanAPI.updateImmunizationRecord(vaccineData)
 
             progressIndicator.show() // Show a progress indicator while the request is being sent
             btSubmit.isEnabled = false
 
-            call.enqueue(object : Callback<VaccineData> {
-                override fun onResponse(call: Call<VaccineData>, response: Response<VaccineData>) {
+            call.enqueue(object : Callback<UpdateRecordsResponse> {
+                override fun onResponse(call: Call<UpdateRecordsResponse>, response: Response<UpdateRecordsResponse>) {
                     progressIndicator.hide() // Hide the progress indicator
 
                     if (response.isSuccessful) {
@@ -178,30 +182,25 @@ class AddRecordsFragment : Fragment() {
                         Log.d("WARSANAPIRESPONSE", responseData.toString())
                         Toast.makeText(
                             requireContext(),
-                            "Immunization Record Added",
+                            "Immunization Record Updated",
                             Toast.LENGTH_SHORT
                         ).show()
+                            navController.popBackStack()
 
-                        val childObject = AddChildResponseParcelable(args.childObject.id, args.childObject.firstName, args.childObject.lastName, args.childObject.dateOfBirth)
 
-                        val action =
-                            AddRecordsFragmentDirections.actionAddRecordsFragmentToImmunizationRecordsFragment3(
-                                childObject = childObject
-                            )
-                        navController.navigate(action)
                     } else {
                         // Handle errors or failed response, if needed
                         Toast.makeText(
                             requireContext(),
-                            "Immunization record with this child already exists.",
+                            "Something went wrong, check the details and try again.",
                             Toast.LENGTH_SHORT
                         ).show()
-                        Log.e("WARSANAPIERROR", "Failed to send immunization record")
+                        Log.e("WARSANAPIERROR", "Something went wrong, check the details and try again")
                         btSubmit.isEnabled = true
                     }
                 }
 
-                override fun onFailure(call: Call<VaccineData>, t: Throwable) {
+                override fun onFailure(call: Call<UpdateRecordsResponse>, t: Throwable) {
                     progressIndicator.hide()
                     btSubmit.isEnabled = true
 
@@ -215,31 +214,30 @@ class AddRecordsFragment : Fragment() {
 
         }
     }
-
-    private fun prepareVaccineData(): VaccineData {
+    private fun prepareVaccineData(): UpdateRecordsRequest {
         // Create a VaccineData object with the required data
         val childId = args.childObject.id
         val status = "Taken"
         val nextDateOfAdministration = selectedNextDueDate
         val selectedVaccine = getSelectedVaccine()
 
-        // Create a list of AdministrationSet objects with vaccine data
+        Log.d("Selected Vaccine", "${selectedVaccine?.id}")
+
         val administrationSetList = listOf(
-            AdministrationSet(
+            VaccineAdministrationSet(
                 vaccine = selectedVaccine!!.id,
                 dateOfAdministration = selectedDateAdmin
             )
         )
 
-        return VaccineData(
+        return UpdateRecordsRequest(
             id = childId,
-            administrationSet = administrationSetList,
+            vaccineAdministrationSet = administrationSetList,
             status = status,
             nextDateOfAdministration = nextDateOfAdministration,
             child = childId
         )
     }
-
     private fun getSelectedVaccine(): Vaccines? {
         val selectedVaccineName = atVaccine.text.toString()
 
@@ -257,4 +255,6 @@ class AddRecordsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
 }

@@ -41,7 +41,6 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
 
     private lateinit var progressIndicator: CircularProgressIndicator
 
-    private lateinit var guardianID: String
 
 
     override fun onCreateView(
@@ -57,17 +56,6 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
         childrenList.clear()
         retrieveGuardianFromAPI()
 
-        binding.fabAddChild.setOnClickListener {
-            if (guardianID != null) {
-                navigateToAddChildFragment(guardianID)
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Something went wrong while getting guardian details",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
         binding.tabRegisterGuardian.setNavigationOnClickListener {
             navController.popBackStack()
         }
@@ -119,7 +107,12 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
                     binding.tabRegisterGuardian.title =
                         "${data?.guardian?.firstName} ${data?.guardian?.lastName}"
                     //pass guardian ID
-                    guardianID = data?.guardian?.id.toString()
+                    val guardianID = data?.guardian?.id
+                    binding.fabAddChild.setOnClickListener{
+                       guardianID?.let {
+                           navigateToAddChildFragment(guardianID)
+                       }
+                    }
 
 
                 } else if (response.body() == null) {
@@ -145,10 +138,10 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
         })
     }
 
-    private fun navigateToAddChildFragment(guardianID: String) {
+    private fun navigateToAddChildFragment(guardianID: Int) {
         val navigate =
             ChildrenListFragmentDirections.actionChildrenListFragmentToRegisterChildFragment(
-                guardianID
+                guardianID.toString()
             )
         navController.navigate(navigate)
 
