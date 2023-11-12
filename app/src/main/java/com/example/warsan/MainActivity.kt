@@ -1,12 +1,9 @@
 package com.example.warsan
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import com.example.warsan.children.ChildrenListFragment
 import com.example.warsan.databinding.ActivityMainBinding
-import com.example.warsan.guardian.RetrieveGuardianFragment
-import com.example.warsan.models.ChildDetails
 
 class MainActivity : AppCompatActivity() {
 

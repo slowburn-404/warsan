@@ -4,13 +4,12 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.warsan.R
 import com.example.warsan.databinding.FragmentLogInBinding
@@ -20,6 +19,7 @@ import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import retrofit2.Call
 import retrofit2.Callback
@@ -151,14 +151,14 @@ class LogInFragment : Fragment() {
                 } else if (response.body() == null) {
                     // Handle the error
                     progressBar.hide()
-                    Toast.makeText(
-                        requireContext(), getString(R.string.incorrect_details), Toast.LENGTH_SHORT
+                    Snackbar.make(
+                        binding.root, getString(R.string.incorrect_details), Snackbar.LENGTH_SHORT
                     ).show()
                     btLogin.isEnabled = true
 
                 } else {
                     progressBar.hide()
-                    Toast.makeText(requireContext(), R.string.login_failed, Toast.LENGTH_SHORT)
+                    Snackbar.make(binding.root, R.string.login_failed, Snackbar.LENGTH_SHORT)
                         .show()
                     btLogin.isEnabled = true
                 }
@@ -167,7 +167,7 @@ class LogInFragment : Fragment() {
             override fun onFailure(call: Call<LogInResponse>, t: Throwable) {
                 // Handle network or other errors
                 progressBar.hide()
-                Toast.makeText(requireContext(), "${t.message}", Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "${t.message}", Snackbar.LENGTH_SHORT).show()
                 Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
             }
         })

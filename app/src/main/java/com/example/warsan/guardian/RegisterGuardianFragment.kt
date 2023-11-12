@@ -25,6 +25,7 @@ import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import retrofit2.Call
@@ -53,7 +54,7 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
     private val locationNames = mutableListOf<String>()
     private var locationsList: MutableList<Location> = mutableListOf()
     private lateinit var locationsAdapter: ArrayAdapter<String>
-    private var locationID = 1
+    private var locationID = 0
 
 
     override fun onCreateView(
@@ -82,7 +83,6 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
 
         atLocation.setOnItemClickListener { _, _, _, _ ->
             locationLayout.error = null
-            locationID = getLocationID(this)
         }
 
         binding.btSaveGuardian.setOnClickListener {
@@ -218,7 +218,11 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
                 if (response.isSuccessful) {
                     val data: List<Location>? = response.body()
                     Log.d("WARSANAPIRESPONSE", "$data")
-                    Toast.makeText(requireContext(), "Locations have been added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Locations have been added",
+                        Toast.LENGTH_SHORT
+                    ).show()
 
                     data?.let {
                         locationsList.clear()
@@ -226,19 +230,13 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
                         locationsAdapter.notifyDataSetChanged()
 
                         setAutoCompleteTextViewAdapter()
+                        getSelectedLocation(this@RegisterGuardianFragment)
 
                     }
 
                     data?.forEach {
                         locationNames.add(it.region)
                     }
-
-                } else if (response.body() == null) {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.location_nonexistent),
-                        Toast.LENGTH_SHORT
-                    ).show()
 
                 } else {
                     Toast.makeText(
@@ -249,25 +247,26 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
 
             override fun onFailure(call: Call<List<Location>>, t: Throwable) {
                 // Handle network or other errors
-                //Toast.makeText(requireContext(), "${t.message}", Toast.LENGTH_SHORT).show()
+                //Snackbar.makeText(requireContext(), "${t.message}", Snackbar.LENGTH_SHORT).show()
                 Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
             }
         })
     }
 
-    private fun getLocationID(callback: LocationSelectedCallback): Int {
+    private fun getSelectedLocation(callback: LocationSelectedCallback) {
         atLocation.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val selectedLocationName = locationsList[position]
             locationID = selectedLocationName.id
             callback.onLocationSelected(locationID)
         }
-
-
-        return locationID
-
     }
 
-    private fun sendGuardianDetailsToAPI(firstName: String, lastName: String, phoneNumber: String, locationID: Int) {
+    private fun sendGuardianDetailsToAPI(
+        firstName: String,
+        lastName: String,
+        phoneNumber: String,
+        locationID: Int
+    ) {
         clearErrorOnTextChange()
         if (textFieldNullCheck()) {
             progressIndicator.show()
@@ -277,7 +276,8 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
             //Create api service
             val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
 
-            val guardianRequestBody = AddGuardianRequest(firstName, lastName, phoneNumber, locationID)
+            val guardianRequestBody =
+                AddGuardianRequest(firstName, lastName, phoneNumber, locationID)
 
             //Make post request
             val call: Call<SuccessResponse> = warsanAPI.registerGuardian(guardianRequestBody)
@@ -289,7 +289,11 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
                     if (response.isSuccessful) {
                         val data: SuccessResponse? = response.body()
                         Log.d("REGISTER RESPONSE", "$data")
-                        Toast.makeText(requireContext(), "Guardian has been added", Toast.LENGTH_SHORT).show()
+                        Snackbar.make(
+                            binding.root,
+                            "Guardian has been added",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
                         //Pass guardian phone number while navigating  to children list fragment
                         val guardiansPhoneNumber = data?.phoneNumber
 
@@ -309,14 +313,15 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
 
                         val errorResponseBody = response.errorBody()?.toString()
 
-                        val errorResponse = Gson().fromJson(errorResponseBody, ErrorResponse::class.java)
+                        val errorResponse =
+                            Gson().fromJson(errorResponseBody, ErrorResponse::class.java)
 
                         if (errorResponse.phoneNumber.isNotEmpty()) {
                             val errorMessage = errorResponse.phoneNumber[0]
-                            Toast.makeText(
-                                requireContext(),
-                                "$errorMessage",
-                                Toast.LENGTH_SHORT
+                            Snackbar.make(
+                                binding.root,
+                                errorMessage,
+                                Snackbar.LENGTH_SHORT
                             ).show()
                             progressIndicator.hide()
                             btSaveGuardian.isEnabled = true
@@ -324,10 +329,10 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
 
                         } else {
                             // Handle the error
-                            Toast.makeText(
-                                requireContext(),
+                            Snackbar.make(
+                                binding.root,
                                 "Something went wrong, please try again",
-                                Toast.LENGTH_SHORT
+                                Snackbar.LENGTH_SHORT
                             ).show()
                             progressIndicator.hide()
                             btSaveGuardian.isEnabled = true
@@ -339,8 +344,8 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
 
                 override fun onFailure(call: Call<SuccessResponse>, t: Throwable) {
                     // Handle network or other errors
-                    Toast.makeText(
-                        requireContext(), "${t.message}", Toast.LENGTH_SHORT
+                    Snackbar.make(
+                        binding.root, "${t.message}", Snackbar.LENGTH_SHORT
                     ).show()
 
                     Log.e("WARSAN API ERROR", "Failed because of: ${t.message}")

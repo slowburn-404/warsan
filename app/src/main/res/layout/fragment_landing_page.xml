@@ -17,7 +17,6 @@
         android:src="@drawable/elipsis" />
 
     <ImageView
-        android:id="@+id/rajo_logo"
         android:layout_width="105dp"
         android:layout_height="105dp"
         android:layout_gravity="center_horizontal"
@@ -25,7 +24,6 @@
         android:src="@drawable/rajologo" />
 
     <TextView
-        android:id="@+id/greeting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -37,7 +35,6 @@
         android:textStyle="bold" />
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/hero_section"
         android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"

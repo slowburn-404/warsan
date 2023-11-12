@@ -7,7 +7,6 @@
     tools:context=".children.immunization.ImmunizationRecordsFragment">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/aplImmunizationRecord"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
@@ -40,9 +39,9 @@
             android:orientation="horizontal">
 
             <View
-                android:id="@+id/active_dot"
+                android:id="@+id/firstDot"
                 android:layout_width="32dp"
-                android:layout_height="32dp"/>
+                android:layout_height="32dp" />
 
             <View
                 android:layout_width="78dp"
@@ -51,9 +50,9 @@
                 android:background="@color/black" />
 
             <View
-                android:id="@+id/inactive_dot"
+                android:id="@+id/secondDot"
                 android:layout_width="32dp"
-                android:layout_height="32dp"/>
+                android:layout_height="32dp" />
 
             <View
                 android:layout_width="78dp"
@@ -62,9 +61,9 @@
                 android:background="@color/black" />
 
             <View
-                android:id="@+id/inactive_dot2"
+                android:id="@+id/thirdDot"
                 android:layout_width="32dp"
-                android:layout_height="32dp"/>
+                android:layout_height="32dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -78,15 +77,16 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:fontFamily="@font/poppins_light"
                 android:gravity="center"
                 android:padding="2dp"
-                android:layout_marginStart="16dp"
                 android:text="@string/six_months"
                 android:textSize="11sp" />
+
             <Space
                 android:layout_width="78dp"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -96,34 +96,28 @@
                 android:padding="2dp"
                 android:text="@string/twelve_months"
                 android:textSize="11sp" />
+
             <Space
                 android:layout_width="78dp"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
                 android:fontFamily="@font/poppins_light"
                 android:gravity="center"
                 android:padding="2dp"
-                android:layout_marginEnd="16dp"
                 android:text="@string/eighteen_months"
                 android:textSize="11sp" />
         </LinearLayout>
+
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/vpImmunizationRecords"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="8dp"/>
+            android:layout_margin="8dp" />
     </LinearLayout>
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btLogin"
-        android:layout_width="320dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="20dp"
-        android:text="@string/update_records"/>
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

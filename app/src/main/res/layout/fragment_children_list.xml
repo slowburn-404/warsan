@@ -7,7 +7,6 @@
     tools:context=".children.ChildrenListFragment">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/aplRegisterGuardian"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
@@ -65,7 +64,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/children_nonexistent"
+        android:id="@+id/childrenNonexistent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

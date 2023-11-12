@@ -7,7 +7,7 @@ import com.example.warsan.databinding.ItemImmunizationDetailsBinding
 import com.example.warsan.models.ImmunizationDetails
 
 class ImmunizationDetailsAdapter(
-    private var immunizationDetailsList: List<ImmunizationDetails>,
+    private var immunizationDetailsList: MutableList<ImmunizationDetails>,
 ) : RecyclerView.Adapter<ImmunizationDetailsAdapter.ImmunizationDetailsViewHolder>() {
 
     inner class ImmunizationDetailsViewHolder(private val binding: ItemImmunizationDetailsBinding) :
@@ -18,6 +18,13 @@ class ImmunizationDetailsAdapter(
             binding.tvNextDate.text = vaccine.dateTaken
         }
     }
+    
+    fun updateData(newList: List<ImmunizationDetails>) {
+    immunizationDetailsList.clear()
+    immunizationDetailsList.addAll(newList)
+    notifyDataSetChanged()
+}
+
 
     override fun onCreateViewHolder(
         parent: ViewGroup, viewType: Int

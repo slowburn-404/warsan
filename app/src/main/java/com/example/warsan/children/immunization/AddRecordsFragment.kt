@@ -1,6 +1,7 @@
 package com.example.warsan.children.immunization
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
@@ -11,11 +12,12 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.warsan.children.ChildrenListFragmentDirections
+import com.example.warsan.R
 import com.example.warsan.databinding.FragmentAddRecordsBinding
 import com.example.warsan.models.AddChildResponseParcelable
 import com.example.warsan.models.AdministrationSet
@@ -25,6 +27,7 @@ import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import retrofit2.Call
 import retrofit2.Callback
@@ -45,8 +48,8 @@ class AddRecordsFragment : Fragment() {
     private lateinit var btSubmit: MaterialButton
     private lateinit var progressIndicator: CircularProgressIndicator
 
-    private lateinit var selectedDateAdmin: String
-    private lateinit var selectedNextDueDate: String
+    private  var selectedDateAdmin: String? = null
+    private var selectedNextDueDate: String? = null
 
     private val vaccinesList = mutableListOf<Vaccines>()
     private lateinit var vaccinesAdapter: ArrayAdapter<String>
@@ -69,22 +72,31 @@ class AddRecordsFragment : Fragment() {
         binding.tabAddRecords.title = "${args.childObject.firstName} ${args.childObject.lastName}"
         binding.tabAddRecords.subtitle = args.childObject.dateOfBirth
 
+        binding.tabAddRecords.setNavigationOnClickListener {
+            navController.popBackStack()
+        }
+
         binding.btSubmit.setOnClickListener {
             sendImmunizationRecordToAPI()
         }
 
         dateAdmin.setOnClickListener {
-            getDateOfBirth(dateAdmin)
+            dateAdmin.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+            getDateAdmin(dateAdmin)
         }
         nextDueDate.setOnClickListener {
-            getDateOfBirth(nextDueDate)
+            nextDueDate.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+            getNextDueDate(nextDueDate)
+        }
+        atVaccine.setOnItemClickListener{_, _, _, _ ->
+            layoutVaccine.error = null
         }
 
         return binding.root
     }
 
 
-    private fun getDateOfBirth(textView: TextView) {
+    private fun getDateAdmin(textView: TextView) {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
@@ -97,6 +109,26 @@ class AddRecordsFragment : Fragment() {
                 textView.text = selectedDate
 
                 selectedDateAdmin = selectedDate
+
+
+            },
+            year, month, day
+        )
+
+        datePickerDialog.show()
+    }
+    private fun getNextDueDate(textView: TextView) {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, selectedYear, selectedMonth, selectedDay ->
+                val selectedDate = "$selectedYear-${selectedMonth + 1}-$selectedDay"
+                textView.text = selectedDate
+
                 selectedNextDueDate = selectedDate
 
 
@@ -115,11 +147,18 @@ class AddRecordsFragment : Fragment() {
             override fun onResponse(
                 call: Call<List<Vaccines>>, response: Response<List<Vaccines>>
             ) {
-                if (response.isSuccessful) {
+                if (response.isSuccessful && isAdded) {
                     val data: List<Vaccines>? = response.body()
                     Log.d("WARSANAPIRESPONSE", "$data")
-                    Toast.makeText(requireContext(), "Vaccines have been added", Toast.LENGTH_SHORT)
-                        .show()
+
+                    context.let {
+                        Toast.makeText(
+                            it,
+                            "Vaccines have been added",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
 
                     data?.let {
                         vaccinesList.clear()
@@ -127,12 +166,6 @@ class AddRecordsFragment : Fragment() {
                         vaccinesAdapter.notifyDataSetChanged()
                         setAutoCompleteTextViewAdapter()
                     }
-                } else if (response.body() == null) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Cannot retrieve vaccines",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 } else {
                     Toast.makeText(
                         requireContext(), "Cannot retrieve vaccines", Toast.LENGTH_SHORT
@@ -156,10 +189,9 @@ class AddRecordsFragment : Fragment() {
     }
 
     private fun sendImmunizationRecordToAPI() {
-        val selectedVaccine = getSelectedVaccine()
 
 
-        if (selectedVaccine != null) {
+        if (inputValidation()) {
             val vaccineData = prepareVaccineData()
 
             val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
@@ -182,7 +214,12 @@ class AddRecordsFragment : Fragment() {
                             Toast.LENGTH_SHORT
                         ).show()
 
-                        val childObject = AddChildResponseParcelable(args.childObject.id, args.childObject.firstName, args.childObject.lastName, args.childObject.dateOfBirth)
+                        val childObject = AddChildResponseParcelable(
+                            args.childObject.id,
+                            args.childObject.firstName,
+                            args.childObject.lastName,
+                            args.childObject.dateOfBirth
+                        )
 
                         val action =
                             AddRecordsFragmentDirections.actionAddRecordsFragmentToImmunizationRecordsFragment3(
@@ -191,10 +228,10 @@ class AddRecordsFragment : Fragment() {
                         navController.navigate(action)
                     } else {
                         // Handle errors or failed response, if needed
-                        Toast.makeText(
-                            requireContext(),
+                        Snackbar.make(
+                            binding.root,
                             "Immunization record with this child already exists.",
-                            Toast.LENGTH_SHORT
+                            Snackbar.LENGTH_SHORT
                         ).show()
                         Log.e("WARSANAPIERROR", "Failed to send immunization record")
                         btSubmit.isEnabled = true
@@ -209,10 +246,6 @@ class AddRecordsFragment : Fragment() {
                     Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
                 }
             })
-        } else {
-            Toast.makeText(requireContext(), "Please select a valid vaccine", Toast.LENGTH_SHORT)
-                .show()
-
         }
     }
 
@@ -227,7 +260,7 @@ class AddRecordsFragment : Fragment() {
         val administrationSetList = listOf(
             AdministrationSet(
                 vaccine = selectedVaccine!!.id,
-                dateOfAdministration = selectedDateAdmin
+                dateOfAdministration = selectedDateAdmin!!
             )
         )
 
@@ -235,7 +268,7 @@ class AddRecordsFragment : Fragment() {
             id = childId,
             administrationSet = administrationSetList,
             status = status,
-            nextDateOfAdministration = nextDateOfAdministration,
+            nextDateOfAdministration = nextDateOfAdministration!!,
             child = childId
         )
     }
@@ -244,6 +277,61 @@ class AddRecordsFragment : Fragment() {
         val selectedVaccineName = atVaccine.text.toString()
 
         return vaccinesList.find { it.vaccineChoice == selectedVaccineName }
+    }
+
+    private fun inputValidation(): Boolean {
+        var isValid = true
+
+        if (isVaccineEmpty()) {
+            layoutVaccine.error = "Vaccine is required"
+            isValid = false
+        } else {
+            layoutVaccine.error = null
+        }
+
+        if (isDateAdministeredEmpty(selectedDateAdmin)) {
+            dateAdmin.text = "Please select date of administration"
+            dateAdmin.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.error_color_material_light
+                )
+            )
+            isValid = false
+        } else {
+            dateAdmin.text = selectedDateAdmin
+            dateAdmin.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+
+        if (isNextDueDateEmpty(selectedNextDueDate)) {
+            nextDueDate.text = "Please select next due date"
+            nextDueDate.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.error_color_material_light
+                )
+            )
+            isValid = false
+        } else {
+            nextDueDate.text = selectedNextDueDate
+            nextDueDate.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+
+        return isValid
+    }
+
+    private fun isVaccineEmpty(): Boolean {
+        return atVaccine.text.isNullOrBlank()
+
+    }
+
+    private fun isDateAdministeredEmpty(text: String?): Boolean {
+        return text.isNullOrEmpty()
+    }
+
+    private fun isNextDueDateEmpty(text: String?): Boolean {
+        return text.isNullOrEmpty()
+
     }
 
 

@@ -12,22 +12,21 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.warsan.R
 import com.example.warsan.databinding.FragmentUpdateRecordsBinding
-import com.example.warsan.models.AddChildResponseParcelable
-import com.example.warsan.models.AdministrationSet
 import com.example.warsan.models.UpdateRecordsRequest
 import com.example.warsan.models.UpdateRecordsResponse
 import com.example.warsan.models.VaccineAdministrationSet
-import com.example.warsan.models.VaccineData
 import com.example.warsan.models.Vaccines
 import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import retrofit2.Call
 import retrofit2.Callback
@@ -48,19 +47,17 @@ class UpdateRecordsFragment : Fragment() {
     private lateinit var btSubmit: MaterialButton
     private lateinit var progressIndicator: CircularProgressIndicator
 
-    private lateinit var selectedDateAdmin: String
-    private lateinit var selectedNextDueDate: String
+    private var selectedDateAdmin: String? = null
+    private var selectedNextDueDate: String? = null
 
     private val vaccinesList = mutableListOf<Vaccines>()
     private lateinit var vaccinesAdapter: ArrayAdapter<String>
 
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentUpdateRecordsBinding.inflate(inflater, container, false)
 
@@ -81,17 +78,22 @@ class UpdateRecordsFragment : Fragment() {
         }
 
         dateAdmin.setOnClickListener {
-            getDateOfBirth(dateAdmin)
+            dateAdmin.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+            getDateAdmin(dateAdmin)
         }
         nextDueDate.setOnClickListener {
-            getDateOfBirth(nextDueDate)
+            nextDueDate.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+            getNextDueDate(nextDueDate)
+        }
+        atVaccine.setOnItemClickListener { _, _, _, _ ->
+            layoutVaccine.error = null
         }
 
 
         return binding.root
     }
 
-    private fun getDateOfBirth(textView: TextView) {
+    private fun getDateAdmin(textView: TextView) {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
@@ -104,6 +106,27 @@ class UpdateRecordsFragment : Fragment() {
                 textView.text = selectedDate
 
                 selectedDateAdmin = selectedDate
+
+
+            },
+            year, month, day
+        )
+
+        datePickerDialog.show()
+    }
+
+    private fun getNextDueDate(textView: TextView) {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, selectedYear, selectedMonth, selectedDay ->
+                val selectedDate = "$selectedYear-${selectedMonth + 1}-$selectedDay"
+                textView.text = selectedDate
+
                 selectedNextDueDate = selectedDate
 
 
@@ -113,6 +136,7 @@ class UpdateRecordsFragment : Fragment() {
 
         datePickerDialog.show()
     }
+
     private fun getVaccines() {
         val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
         val call: Call<List<Vaccines>> = warsanAPI.getVaccines()
@@ -121,11 +145,18 @@ class UpdateRecordsFragment : Fragment() {
             override fun onResponse(
                 call: Call<List<Vaccines>>, response: Response<List<Vaccines>>
             ) {
-                if (response.isSuccessful) {
+                if (response.isSuccessful && isAdded) {
                     val data: List<Vaccines>? = response.body()
                     Log.d("WARSANAPIRESPONSE", "$data")
-                    Toast.makeText(requireContext(), "Vaccines have been added", Toast.LENGTH_SHORT)
-                        .show()
+                    context.let {
+                        Toast.makeText(
+                            requireContext(),
+                            "Vaccines have been added",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+
 
                     data?.let {
                         vaccinesList.clear()
@@ -133,12 +164,6 @@ class UpdateRecordsFragment : Fragment() {
                         vaccinesAdapter.notifyDataSetChanged()
                         setAutoCompleteTextViewAdapter()
                     }
-                } else if (response.body() == null) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Cannot retrieve vaccines",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 } else {
                     Toast.makeText(
                         requireContext(), "Cannot retrieve vaccines", Toast.LENGTH_SHORT
@@ -151,6 +176,7 @@ class UpdateRecordsFragment : Fragment() {
             }
         })
     }
+
     private fun setAutoCompleteTextViewAdapter() {
         vaccinesAdapter = ArrayAdapter(
             requireContext(),
@@ -159,11 +185,11 @@ class UpdateRecordsFragment : Fragment() {
         )
         atVaccine.setAdapter(vaccinesAdapter)
     }
+
     private fun sendImmunizationRecordToAPI() {
-        val selectedVaccine = getSelectedVaccine()
 
 
-        if (selectedVaccine != null) {
+        if (inputValidation()) {
             val vaccineData = prepareVaccineData()
 
             val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
@@ -173,7 +199,10 @@ class UpdateRecordsFragment : Fragment() {
             btSubmit.isEnabled = false
 
             call.enqueue(object : Callback<UpdateRecordsResponse> {
-                override fun onResponse(call: Call<UpdateRecordsResponse>, response: Response<UpdateRecordsResponse>) {
+                override fun onResponse(
+                    call: Call<UpdateRecordsResponse>,
+                    response: Response<UpdateRecordsResponse>
+                ) {
                     progressIndicator.hide() // Hide the progress indicator
 
                     if (response.isSuccessful) {
@@ -185,17 +214,24 @@ class UpdateRecordsFragment : Fragment() {
                             "Immunization Record Updated",
                             Toast.LENGTH_SHORT
                         ).show()
-                            navController.popBackStack()
+                        navController.navigate(
+                            UpdateRecordsFragmentDirections.actionUpdateRecordsFragmentToChildrenListFragment(
+                                responseData?.childPhoneNumber
+                            )
+                        )
 
 
                     } else {
                         // Handle errors or failed response, if needed
-                        Toast.makeText(
-                            requireContext(),
+                        Snackbar.make(
+                            binding.root,
                             "Something went wrong, check the details and try again.",
-                            Toast.LENGTH_SHORT
+                            Snackbar.LENGTH_SHORT
                         ).show()
-                        Log.e("WARSANAPIERROR", "Something went wrong, check the details and try again")
+                        Log.e(
+                            "WARSANAPIERROR",
+                            "Something went wrong, check the details and try again"
+                        )
                         btSubmit.isEnabled = true
                     }
                 }
@@ -208,12 +244,9 @@ class UpdateRecordsFragment : Fragment() {
                     Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
                 }
             })
-        } else {
-            Toast.makeText(requireContext(), "Please select a valid vaccine", Toast.LENGTH_SHORT)
-                .show()
-
         }
     }
+
     private fun prepareVaccineData(): UpdateRecordsRequest {
         // Create a VaccineData object with the required data
         val childId = args.childObject.id
@@ -226,7 +259,7 @@ class UpdateRecordsFragment : Fragment() {
         val administrationSetList = listOf(
             VaccineAdministrationSet(
                 vaccine = selectedVaccine!!.id,
-                dateOfAdministration = selectedDateAdmin
+                dateOfAdministration = selectedDateAdmin!!
             )
         )
 
@@ -234,14 +267,70 @@ class UpdateRecordsFragment : Fragment() {
             id = childId,
             vaccineAdministrationSet = administrationSetList,
             status = status,
-            nextDateOfAdministration = nextDateOfAdministration,
+            nextDateOfAdministration = nextDateOfAdministration!!,
             child = childId
         )
     }
+
     private fun getSelectedVaccine(): Vaccines? {
         val selectedVaccineName = atVaccine.text.toString()
 
         return vaccinesList.find { it.vaccineChoice == selectedVaccineName }
+    }
+
+    private fun inputValidation(): Boolean {
+        var isValid = true
+
+        if (isVaccineEmpty()) {
+            layoutVaccine.error = "Vaccine is required"
+            isValid = false
+        } else {
+            layoutVaccine.error = null
+        }
+
+        if (isDateAdministeredEmpty(selectedDateAdmin)) {
+            dateAdmin.text = "Please select date of administration"
+            dateAdmin.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.error_color_material_light
+                )
+            )
+            isValid = false
+        } else {
+            dateAdmin.text = selectedDateAdmin
+            dateAdmin.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+
+        if (isNextDueDateEmpty(selectedNextDueDate)) {
+            nextDueDate.text = "Please select next due date"
+            nextDueDate.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.error_color_material_light
+                )
+            )
+            isValid = false
+        } else {
+            nextDueDate.text = selectedNextDueDate
+            nextDueDate.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+
+        return isValid
+    }
+
+    private fun isVaccineEmpty(): Boolean {
+        return atVaccine.text.isNullOrBlank()
+
+    }
+
+    private fun isDateAdministeredEmpty(text: String?): Boolean {
+        return text.isNullOrEmpty()
+    }
+
+    private fun isNextDueDateEmpty(text: String?): Boolean {
+        return text.isNullOrEmpty()
+
     }
 
 

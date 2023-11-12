@@ -7,7 +7,6 @@
     tools:context=".children.immunization.UpdateRecordsFragment">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/aplAddRecords"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
@@ -51,7 +50,6 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
-            android:id="@+id/tvDateAdministeredTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -82,12 +80,11 @@
                 android:layout_marginTop="8dp"
                 android:fontFamily="@font/poppins_regular"
                 android:padding="8dp"
-                android:text="01/01/2023"
+                android:text="@string/select_date"
                 android:textColor="@color/black" />
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tvNextDueDateTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -117,7 +114,7 @@
                 android:layout_gravity="center_vertical"
                 android:fontFamily="@font/poppins_regular"
                 android:padding="8dp"
-                android:text="22/03/2023"
+                android:text="@string/select_date"
                 android:textColor="@color/black" />
         </LinearLayout>
 

@@ -7,7 +7,6 @@
     tools:context=".children.immunization.AddRecordsFragment">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/aplAddRecords"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
@@ -37,6 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="40dp"
+            app:errorEnabled="true"
             android:hint="@string/vaccine">
 
             <AutoCompleteTextView
@@ -51,7 +51,6 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
-            android:id="@+id/tvDateAdministeredTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -78,23 +77,21 @@
                 android:id="@+id/tvDateAdministered"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:text="@string/select_date"
                 android:fontFamily="@font/poppins_regular"
                 android:padding="8dp"
-                android:text="01/01/2023"
                 android:textColor="@color/black" />
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tvNextDueDateTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
+            android:text="@string/next_due_date"
             android:fontFamily="@font/poppins_regular"
             android:padding="8dp"
-            android:text="@string/next_due_date"
             android:textColor="@color/black" />
 
         <LinearLayout
@@ -114,10 +111,10 @@
                 android:id="@+id/tvNextDueDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:text="@string/select_date"
                 android:fontFamily="@font/poppins_regular"
                 android:padding="8dp"
-                android:text="22/03/2023"
                 android:textColor="@color/black" />
         </LinearLayout>
 

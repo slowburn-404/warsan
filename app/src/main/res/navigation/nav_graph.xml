@@ -2,7 +2,6 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/landing_page_nav"
     app:startDestination="@id/splashScreenFragment">
 
     <fragment
@@ -114,8 +113,7 @@
         <action
             android:id="@+id/action_immunizationRecordsFragment_to_updateRecordsFragment"
             app:destination="@id/updateRecordsFragment"
-            app:popUpTo="@id/immunizationRecordsFragment"
-            app:popUpToInclusive="true" />
+            app:popUpTo="@id/immunizationRecordsFragment" />
     </fragment>
     <fragment
         android:id="@+id/addRecordsFragment"
@@ -146,5 +144,8 @@
         <argument
             android:name="childObject"
             app:argType="com.example.warsan.models.AddChildResponseParcelable" />
+        <action
+            android:id="@+id/action_updateRecordsFragment_to_childrenListFragment"
+            app:destination="@id/childrenListFragment" />
     </fragment>
 </navigation>

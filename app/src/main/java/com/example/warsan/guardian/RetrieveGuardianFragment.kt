@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -20,6 +19,7 @@ import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import retrofit2.Call
 import retrofit2.Callback
@@ -132,16 +132,17 @@ class RetrieveGuardianFragment : Fragment() {
                     )
                 } else if (response.body() == null) {
                     progressIndicator.hide()
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.guardian_non_existent),
-                        Toast.LENGTH_SHORT
-                    ).show()
                     btRetrieveGuardian.isEnabled = true
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.guardian_non_existent),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+
 
                 } else {
                     progressIndicator.hide()
-                    Toast.makeText(requireContext(), R.string.login_failed, Toast.LENGTH_SHORT)
+                    Snackbar.make(binding.root, R.string.login_failed, Snackbar.LENGTH_SHORT)
                         .show()
                     btRetrieveGuardian.isEnabled = true
                 }
@@ -150,7 +151,7 @@ class RetrieveGuardianFragment : Fragment() {
             override fun onFailure(call: Call<GuardianResponse>, t: Throwable) {
                 // Handle network or other errors
                 progressIndicator.hide()
-                Toast.makeText(requireContext(), "${t.message}", Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "${t.message}", Snackbar.LENGTH_SHORT).show()
                 Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
             }
         })

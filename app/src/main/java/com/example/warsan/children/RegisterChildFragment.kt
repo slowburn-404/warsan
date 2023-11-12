@@ -6,15 +6,14 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -23,13 +22,12 @@ import com.example.warsan.databinding.FragmentRegisterChildBinding
 import com.example.warsan.models.AddChildRequest
 import com.example.warsan.models.AddChildResponse
 import com.example.warsan.models.AddChildResponseParcelable
-import com.example.warsan.models.SuccessResponse
 import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import retrofit2.Call
 import retrofit2.Callback
@@ -83,18 +81,21 @@ class RegisterChildFragment : Fragment() {
         layoutDOB.setOnClickListener {
             getDateOfBirth()
         }
+        binding.tabRegisterChild.setNavigationOnClickListener {
+            navController.popBackStack()
+        }
 
         btSaveChild.setOnClickListener {
-            var dOBPlaceHolder = ContextCompat.getString(requireContext(), R.string.date_of_birth)
+            val dOBPlaceHolder = ContextCompat.getString(requireContext(), R.string.date_of_birth)
             val doBError = ContextCompat.getString(requireContext(), R.string.date_of_birth_error)
             val firstName = etFirstName.text?.trim().toString()
             val lastName = etLastName.text?.trim().toString()
             var dOB: String? = null
 
-            if(tVDOB.text != doBError || tVDOB.text != dOBPlaceHolder) {
+            if (tVDOB.text != doBError || tVDOB.text != dOBPlaceHolder) {
                 dOB = tVDOB.text.toString()
             }
-            val gender  = when (atGender.text.toString()) {
+            val gender = when (atGender.text.toString()) {
                 "Male" -> "M"
 
                 else -> {
@@ -132,7 +133,7 @@ class RegisterChildFragment : Fragment() {
     private fun textFieldNullCheck(): Boolean {
         val firstName = etFirstName.text?.trim().toString()
         val lastName = etLastName.text?.trim().toString()
-        var dOBPlaceHolder = ContextCompat.getString(requireContext(), R.string.date_of_birth)
+        val dOBPlaceHolder = ContextCompat.getString(requireContext(), R.string.date_of_birth)
 
         var isValid = true
 
@@ -230,33 +231,41 @@ class RegisterChildFragment : Fragment() {
                 override fun onResponse(
                     call: Call<AddChildResponse>, response: Response<AddChildResponse>
                 ) {
-                    if (response.isSuccessful) {
-                        val data: AddChildResponse? = response.body()
-                        Log.d("ADDCHILD RESPONSE", "$data")
-                        Toast.makeText(requireContext(), "Child has been added", Toast.LENGTH_SHORT)
-                            .show()
-                        //pass child ID to add records fragment
+                    if (isAdded) {
+                        if (response.isSuccessful) {
 
-                        val navigateTAddRecordsFragment = data?.let {
-                            val childObject = AddChildResponseParcelable(data.id, data.firstName, data.lastName, data.dateOfBirth)
-                            RegisterChildFragmentDirections.actionRegisterChildFragmentToAddRecordsFragment(
-                                childObject = childObject
-                            )
+                            val data: AddChildResponse? = response.body()
+
+                            Log.d("ADDCHILD RESPONSE", "$data")
+
+                            //pass child ID to add records fragment
+
+                            val navigateTAddRecordsFragment = data?.let {
+                                val childObject = AddChildResponseParcelable(
+                                    data.id,
+                                    data.firstName,
+                                    data.lastName,
+                                    data.dateOfBirth
+                                )
+                                RegisterChildFragmentDirections.actionRegisterChildFragmentToAddRecordsFragment(
+                                    childObject = childObject
+                                )
+                            }
+                            navigateTAddRecordsFragment?.let {
+                                navController.navigate(navigateTAddRecordsFragment)
+                            }
+                        } else {
+
+                            Snackbar.make(
+                                binding.root,
+                                "Something went wrong, please try again",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+
                         }
-                        navigateTAddRecordsFragment?.let {
-                            navController.navigate(navigateTAddRecordsFragment)
-                        }
-                    } else {
-
-                        Toast.makeText(
-                            requireContext(),
-                            "Something went wrong, please try again",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        progressIndicator.hide()
-                        btSaveChild.isEnabled = true
-
                     }
+                    progressIndicator.hide()
+                    btSaveChild.isEnabled = true
 
 
                 }
@@ -265,8 +274,8 @@ class RegisterChildFragment : Fragment() {
                     val errorMessage: String? = t.message
                     if (errorMessage != null) {
                         Log.d("ADD CHILD ERROR", errorMessage)
-                        Toast.makeText(
-                            requireContext(), errorMessage, Toast.LENGTH_SHORT
+                        Snackbar.make(
+                            binding.root, errorMessage, Snackbar.LENGTH_SHORT
                         ).show()
                         progressIndicator.hide()
                         btSaveChild.isEnabled = true
@@ -279,6 +288,7 @@ class RegisterChildFragment : Fragment() {
 
 
     }
+
     private fun getDateOfBirth() {
 
         val calendar = Calendar.getInstance()
@@ -287,21 +297,20 @@ class RegisterChildFragment : Fragment() {
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
         val datePickerDialog = DatePickerDialog(
-        requireContext(),
-        { _, selectedYear, selectedMonth, selectedDay ->
-            val selectedDate = "$selectedYear-${selectedMonth + 1}-$selectedDay"
-            tVDOB.text = selectedDate
+            requireContext(),
+            { _, selectedYear, selectedMonth, selectedDay ->
+                val selectedDate = "$selectedYear-${selectedMonth + 1}-$selectedDay"
+                tVDOB.text = selectedDate
 
-            selectedDOB = selectedDate
+                selectedDOB = selectedDate
 
-        },
-        year, month, day
-    )
+            },
+            year, month, day
+        )
 
-    datePickerDialog.show()
+        datePickerDialog.show()
 
     }
-
 
 
     override fun onDestroyView() {

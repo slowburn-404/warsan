@@ -1,37 +1,43 @@
 package com.example.warsan.children.immunization
 
+import android.icu.text.SimpleDateFormat
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.warsan.R
-import com.example.warsan.children.ChildrenListAdapter
-import com.example.warsan.databinding.FragmentSixToTwelveMonthsBinding
 import com.example.warsan.databinding.FragmentZeroToSixMonthsBinding
 import com.example.warsan.models.AddChildResponseParcelable
-import com.example.warsan.models.Child
 import com.example.warsan.models.ImmunizationDetails
 import com.example.warsan.models.VaccinatedChild
 import com.example.warsan.models.Vaccines
 import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
+import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Date
+import java.util.Locale
 
 class ZeroToSixMonthsFragment : Fragment() {
     private var _binding: FragmentZeroToSixMonthsBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var immunizationDetailsAdapter: ImmunizationDetailsAdapter
-    private var immunizationDetailsList = ArrayList<ImmunizationDetails>()
-
+    private var immunizationDetailsListForRecyclerView = mutableListOf<ImmunizationDetails>()
+    private val immunizationDetailsListFromAPI: ArrayList<VaccinatedChild> = arrayListOf()
     private val vaccinesList = mutableListOf<Vaccines>()
+
+    private lateinit var progressIndicator: CircularProgressIndicator
 
 
     override fun onCreateView(
@@ -44,18 +50,31 @@ class ZeroToSixMonthsFragment : Fragment() {
         val args: ZeroToSixMonthsFragmentArgs by navArgs()
         val childObject = args.childObject
 
+        progressIndicator = binding.zeroToSixCircularProgressIndicator
+        progressIndicator.hide()
 
+        binding.btLogin.isEnabled = false
+        progressIndicator.hide()
 
-        setUpRecyclerViewAdapter()
-        immunizationDetailsList.clear()
+        immunizationDetailsListForRecyclerView.clear()
         getVaccines()
-
         fetchImmunizationRecords(childObject.id)
+        setUpRecyclerViewAdapter()
 
+        binding.btLogin.setOnClickListener {
+            val childObject = AddChildResponseParcelable(
+                args.childObject.id,
+                args.childObject.firstName,
+                args.childObject.lastName,
+                args.childObject.dateOfBirth
+            )
+            val action =
+                ImmunizationRecordsFragmentDirections.actionImmunizationRecordsFragmentToUpdateRecordsFragment(
+                    childObject
+                )
 
-
-
-
+            findNavController().navigate(action)
+        }
 
 
 
@@ -63,65 +82,101 @@ class ZeroToSixMonthsFragment : Fragment() {
     }
 
     private fun setUpRecyclerViewAdapter() {
-        immunizationDetailsAdapter = ImmunizationDetailsAdapter(immunizationDetailsList)
+        immunizationDetailsAdapter =
+            ImmunizationDetailsAdapter(immunizationDetailsListForRecyclerView)
         binding.rvZeroToSixMonths.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvZeroToSixMonths.setHasFixedSize(true)
         binding.rvZeroToSixMonths.adapter = immunizationDetailsAdapter
     }
 
     private fun fetchImmunizationRecords(childID: Int) {
+        progressIndicator.show()
+        val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
+        val call = warsanAPI.getImmunizationRecords(childID)
 
-        if(childID != null) {
-            val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
-            val call = warsanAPI.getImmunizationRecords(childID)
+        call.enqueue(object : Callback<List<VaccinatedChild>> {
+            override fun onResponse(
+                call: Call<List<VaccinatedChild>>,
+                response: Response<List<VaccinatedChild>>
+            ) {
+                if (response.isSuccessful) {
+                    val vaccinatedChild = response.body()
+                    progressIndicator.hide()
 
-            call.enqueue(object : Callback<List<VaccinatedChild>> {
-                override fun onResponse(
-                    call: Call<List<VaccinatedChild>>,
-                    response: Response<List<VaccinatedChild>>
-                ) {
-                    if (response.isSuccessful) {
-                        val vaccinatedChild = response.body()
-                        // Handle the data here
-                        val updatedImmunizationDetailsList = ArrayList<ImmunizationDetails>()
-
-
-                        vaccinatedChild?.forEach { vaccinatedChild ->
-                            binding.tvNextDueDate.text = vaccinatedChild.nextDateOfAdministration
-
-                            // Create a list for each VaccinatedChild
-                            val immunizationDetailsListForChild = ArrayList<ImmunizationDetails>()
-                            immunizationDetailsListForChild.add(
-                                convertVaccinatedChildToImmunizationDetails(vaccinatedChild)
-                            )
-
-                            updatedImmunizationDetailsList.addAll(immunizationDetailsListForChild)
-                        }
-                        immunizationDetailsList.addAll(updatedImmunizationDetailsList)
-
-                        immunizationDetailsAdapter.notifyDataSetChanged()
-
-
-                    } else {
-                        // Handle the error
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to fetch immunization record, please try again.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        Log.e("WARSANAPIERROR", "Failed to fetch immunization record")
+                    if (vaccinatedChild != null) {
+                        immunizationDetailsListFromAPI.addAll(vaccinatedChild)
+                        filterVaccineData(immunizationDetailsListFromAPI)
                     }
-                }
 
-                override fun onFailure(call: Call<List<VaccinatedChild>>, t: Throwable) {
-                    // Handle network or other errors
-                    Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
+                    vaccinatedChild?.forEach { childVaccine ->
+                        binding.txtVNextDueDate.text = childVaccine.nextDateOfAdministration
+                        val nextDateOfAdministration = childVaccine.nextDateOfAdministration
+                        val isUpdateButtonEnabled = isUpdateButtonEnabled(nextDateOfAdministration)
+                        binding.btLogin.isEnabled = isUpdateButtonEnabled
+                    }
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        "Failed to fetch immunization record, please try again.",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    Log.e("WARSANAPIERROR", "Failed to fetch immunization record")
+                    progressIndicator.hide()
                 }
-            })
-        }else {
-            Toast.makeText(requireContext(),"No child ID", Toast.LENGTH_SHORT).show()
-        }
+            }
+
+            override fun onFailure(call: Call<List<VaccinatedChild>>, t: Throwable) {
+                Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
+                progressIndicator.hide()
+            }
+        })
     }
+
+    private fun filterVaccineData(immunizationDetailsListFromAPI: ArrayList<VaccinatedChild>?) {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        // Assuming each child has only one date of birth
+        val childDob = immunizationDetailsListFromAPI?.firstOrNull()?.let {
+            Calendar.getInstance().apply {
+                time = dateFormat.parse(it.childDateOfBirth)!!
+            }
+        } ?: return
+
+        Log.d("dob", childDob.time.toString())
+
+        // Calculate the start date based on the child's date of birth
+        val startDate = Calendar.getInstance().apply {
+            time = childDob.time
+        }
+        Log.d("Start date", startDate.time.toString())
+
+        // Calculate the end date (6 months from the start date)
+        val endDate = Calendar.getInstance().apply {
+            time = startDate.time
+            add(Calendar.MONTH, 12)
+        }
+        Log.d("End date", endDate.time.toString())
+
+        // Filter the data based on the date range
+        val filteredData = immunizationDetailsListFromAPI?.filter { vaccinatedChild ->
+            vaccinatedChild.vaccineAdministrationSet.any { administration ->
+                val vaccineDate = dateFormat.parse(administration.dateOfAdministration)
+                vaccineDate in startDate.time..endDate.time
+            }
+        }
+
+        // Convert filtered data to ImmunizationDetails and display in the UI
+        immunizationDetailsListForRecyclerView.clear()
+        filteredData?.forEach { vaccinatedChild ->
+            convertVaccinatedChildToImmunizationDetails(vaccinatedChild).let {
+                immunizationDetailsListForRecyclerView.addAll(it)
+
+                Log.d("Filtered data", it.toString())
+                Log.d("rvImmunization", immunizationDetailsListForRecyclerView.toString())
+            }
+        }
+        immunizationDetailsAdapter.updateData(immunizationDetailsListForRecyclerView)
+    }
+
 
     private fun getVaccines() {
         val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
@@ -139,14 +194,14 @@ class ZeroToSixMonthsFragment : Fragment() {
                         vaccinesList.addAll(data)
                     }
                 } else if (response.body() == null) {
-                    Toast.makeText(
-                        requireContext(),
+                    Snackbar.make(
+                        binding.root,
                         "Cannot retrieve vaccines",
-                        Toast.LENGTH_SHORT
+                        Snackbar.LENGTH_SHORT
                     ).show()
                 } else {
-                    Toast.makeText(
-                        requireContext(), "Cannot retrieve vaccines", Toast.LENGTH_SHORT
+                    Snackbar.make(
+                        binding.root, "Cannot retrieve vaccines", Snackbar.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -157,34 +212,44 @@ class ZeroToSixMonthsFragment : Fragment() {
         })
     }
 
-    private fun getDrawableForStatus(status: String): Int {
-        return when (status) {
+    private fun convertVaccinatedChildToImmunizationDetails(
+        vaccinatedChild: VaccinatedChild,
+    ): List<ImmunizationDetails> {
+        val immunizationDetailsList = mutableListOf<ImmunizationDetails>()
+        val status = getDrawableForStatus(vaccinatedChild.status)
+
+        vaccinatedChild.vaccineAdministrationSet.forEach {
+            val vaccine = it.vaccine
+            val dateOfAdministration = it.dateOfAdministration
+            val vaccineChoice =
+                vaccinesList.find { child ->
+                    child.id.toString() == vaccine.toString()
+                }?.vaccineChoice ?: "Unknown Vaccine"
+            val immunizationDetails =
+                ImmunizationDetails(vaccineChoice, status, dateOfAdministration)
+            immunizationDetailsList.add(immunizationDetails)
+        }
+
+        Log.d("Immunization details list", immunizationDetailsList.toString())
+
+        return immunizationDetailsList
+    }
+
+    private fun getDrawableForStatus(vaccinatedChildStatus: String): Int {
+        return when (vaccinatedChildStatus) {
             "Taken" -> R.drawable.tick
             else -> R.drawable.cross
         }
-
     }
 
-    private fun convertVaccinatedChildToImmunizationDetails(
-        vaccinatedChild: VaccinatedChild,
-    ): ImmunizationDetails {
-        val statusDrawable = getDrawableForStatus(vaccinatedChild.status)
+    private fun isUpdateButtonEnabled(nextDueDate: String): Boolean {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val nextDueDateParsed = dateFormat.parse(nextDueDate) ?: return false
 
-        val vaccineId = vaccinatedChild.vaccineAdministrationSet
-            .firstOrNull() // You might need to adjust this based on your logic to select the correct vaccine
-            ?.vaccine?.toString() ?: "Unknown Vaccine"
-
-        val vaccineChoice =
-            vaccinesList.find { it.id.toString() == vaccineId }?.vaccineChoice ?: "Unknown Vaccine"
-
-        val dateOfAdministration = vaccinatedChild.vaccineAdministrationSet
-            .firstOrNull() // You might need to adjust this based on your logic to select the correct date
-            ?.dateOfAdministration ?: "Unknown Date"
-
-
-
-        return ImmunizationDetails(vaccineChoice, statusDrawable, dateOfAdministration)
+        val currentDate = Date()
+        return currentDate.after(nextDueDateParsed)
     }
+
     companion object {
         // Create a companion object with a newInstance method that accepts arguments
         fun newInstance(childObject: AddChildResponseParcelable): ZeroToSixMonthsFragment {
@@ -203,3 +268,5 @@ class ZeroToSixMonthsFragment : Fragment() {
     }
 
 }
+
+

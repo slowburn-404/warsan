@@ -5,17 +5,16 @@ import android.icu.util.Calendar
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import com.example.warsan.R
 import com.example.warsan.databinding.FragmentImmunizationRecordsBinding
-import com.example.warsan.models.AddChildResponseParcelable
 
 class ImmunizationRecordsFragment : Fragment() {
 
@@ -37,9 +36,9 @@ class ImmunizationRecordsFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentImmunizationRecordsBinding.inflate(inflater, container, false)
 
-        firstDot = binding.activeDot
-        secondDot = binding.inactiveDot
-        thirdDot = binding.inactiveDot2
+        firstDot = binding.firstDot
+        secondDot = binding.secondDot
+        thirdDot = binding.thirdDot
         immunizationRecordViewPager = binding.vpImmunizationRecords
 
         val childObject = args.childObject
@@ -88,20 +87,12 @@ class ImmunizationRecordsFragment : Fragment() {
         thirdDot.setOnClickListener {
             immunizationRecordViewPager.currentItem = 2
         }
-        binding.btLogin.setOnClickListener {
-            val childObject = AddChildResponseParcelable(
-                args.childObject.id,
-                args.childObject.firstName,
-                args.childObject.firstName,
-                args.childObject.firstName
-            )
-            val action =
-                ImmunizationRecordsFragmentDirections.actionImmunizationRecordsFragmentToUpdateRecordsFragment(
-                    childObject
-                )
 
-            findNavController().navigate(action)
+        binding.tabImmunizationRecords.setNavigationOnClickListener {
+            findNavController().popBackStack()
         }
+
+
 
 
         return binding.root

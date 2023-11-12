@@ -6,13 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.warsan.R
-import com.example.warsan.children.immunization.ImmunizationRecordsFragmentArgs
 import com.example.warsan.databinding.FragmentChildrenListBinding
 import com.example.warsan.models.AddChildResponseParcelable
 import com.example.warsan.models.Child
@@ -21,6 +19,7 @@ import com.example.warsan.models.GuardianResponse
 import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -40,7 +39,6 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
     private var childrenListFromAPI: List<ChildDetails>? = null
 
     private lateinit var progressIndicator: CircularProgressIndicator
-
 
 
     override fun onCreateView(
@@ -71,10 +69,14 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
             Log.d("ChildrenList", "$childrenList")
         }
 
-        childrenListAdapter = ChildrenListAdapter(childrenList, this)
-        binding.rvAddChild.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvAddChild.setHasFixedSize(true)
-        binding.rvAddChild.adapter = childrenListAdapter
+        if (isAdded) {
+            context?.let {
+                childrenListAdapter = ChildrenListAdapter(childrenList, this)
+                binding.rvAddChild.layoutManager = LinearLayoutManager(it)
+                binding.rvAddChild.setHasFixedSize(true)
+                binding.rvAddChild.adapter = childrenListAdapter
+            }
+        }
 
     }
 
@@ -108,10 +110,10 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
                         "${data?.guardian?.firstName} ${data?.guardian?.lastName}"
                     //pass guardian ID
                     val guardianID = data?.guardian?.id
-                    binding.fabAddChild.setOnClickListener{
-                       guardianID?.let {
-                           navigateToAddChildFragment(guardianID)
-                       }
+                    binding.fabAddChild.setOnClickListener {
+                        guardianID?.let {
+                            navigateToAddChildFragment(guardianID)
+                        }
                     }
 
 
@@ -124,7 +126,11 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
                 } else {
                     progressIndicator.hide()
                     binding.fabAddChild.isEnabled = true
-                    Toast.makeText(requireContext(), R.string.login_failed, Toast.LENGTH_SHORT)
+                    Snackbar.make(
+                        binding.root,
+                        "Something went wrong, please try again",
+                        Snackbar.LENGTH_SHORT
+                    )
                         .show()
 
                 }
@@ -132,7 +138,7 @@ class ChildrenListFragment : Fragment(), OnItemClickListener {
 
             override fun onFailure(call: Call<GuardianResponse>, t: Throwable) {
                 // Handle network or other errors
-                Toast.makeText(requireContext(), "${t.message}", Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "${t.message}", Snackbar.LENGTH_SHORT).show()
                 Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
             }
         })
