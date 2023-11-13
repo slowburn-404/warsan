@@ -55,8 +55,7 @@ class LogInFragment : Fragment() {
 
 
         btLogin.setOnClickListener {
-            findNavController().navigate(R.id.action_logInFragment_to_retrieveGuardianFragment)
-            //login()
+            makeAPICall()
         }
         clearErrorOnTextChange()
 
@@ -68,26 +67,32 @@ class LogInFragment : Fragment() {
         val etPhoneNumber = phoneNumber.text?.trim().toString()
         val etPassword = password.text?.trim().toString()
 
-        return etPhoneNumber.isNotEmpty() && etPassword.isNotEmpty()
+        var isValid = true
+
+        if(isPhoneNumberEmpty(etPhoneNumber)){
+            phoneNumberLayout.error = "Phone number is required"
+            isValid = false
+        }else{
+            phoneNumberLayout.error = null
+        }
+        if(isPhoneNumberEmpty(etPassword)){
+            passwordLayout.error = "Password is required"
+            isValid = false
+        }else{
+            passwordLayout.error = null
+        }
+
+        return isValid
 
     }
 
-    private fun login() {
+    private fun isPhoneNumberEmpty(text: String): Boolean {
 
-        if (textFieldNullCheck()) {
-            phoneNumberLayout.error = null
-            passwordLayout.error = null
+        return text.isNullOrEmpty()
+    }
 
-            btLogin.isEnabled = false
-
-            progressBar.show()
-            makeAPICall()
-
-
-        } else {
-            phoneNumberLayout.error = getString(R.string.phone_number_is_required)
-            passwordLayout.error = getString(R.string.password_is_required)
-        }
+    private fun isPasswordEmpty(text: String): Boolean {
+        return text.isNullOrEmpty()
     }
 
     private fun clearErrorOnTextChange() {
@@ -126,51 +131,62 @@ class LogInFragment : Fragment() {
     private fun makeAPICall() {
         val etPhoneNumber = phoneNumber.text?.trim().toString()
         val etPassword = password.text?.trim().toString()
-        //Create api service
-        val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
 
-        //create a request boody
-        val requestBody = LogInRequest(etPassword, etPhoneNumber)
+        if(textFieldNullCheck()) {
 
-        //Make post request
-        val call: Call<LogInResponse> = warsanAPI.login(requestBody)
+            btLogin.isEnabled = false
+            progressBar.show()
 
-        call.enqueue(object : Callback<LogInResponse> {
-            override fun onResponse(
-                call: Call<LogInResponse>, response: Response<LogInResponse>
-            ) {
-                if (response.isSuccessful) {
-                    progressBar.hide()
-                    val data: LogInResponse? = response.body()
-                    Log.d("WARSANAPIRESPONSE", "$data")
-                    Toast.makeText(
-                        requireContext(), getString(R.string.login_successful), Toast.LENGTH_SHORT
-                    ).show()
-                    findNavController().navigate(R.id.action_logInFragment_to_retrieveGuardianFragment)
-                    // Handle the response data here
-                } else if (response.body() == null) {
-                    // Handle the error
-                    progressBar.hide()
-                    Snackbar.make(
-                        binding.root, getString(R.string.incorrect_details), Snackbar.LENGTH_SHORT
-                    ).show()
-                    btLogin.isEnabled = true
+            //Create api service
+            val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
 
-                } else {
-                    progressBar.hide()
-                    Snackbar.make(binding.root, R.string.login_failed, Snackbar.LENGTH_SHORT)
-                        .show()
-                    btLogin.isEnabled = true
+            //create a request boody
+            val requestBody = LogInRequest(etPassword, etPhoneNumber)
+
+            //Make post request
+            val call: Call<LogInResponse> = warsanAPI.login(requestBody)
+
+            call.enqueue(object : Callback<LogInResponse> {
+                override fun onResponse(
+                    call: Call<LogInResponse>, response: Response<LogInResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        progressBar.hide()
+                        val data: LogInResponse? = response.body()
+                        Log.d("WARSANAPIRESPONSE", "$data")
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.login_successful),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        findNavController().navigate(R.id.action_logInFragment_to_retrieveGuardianFragment)
+                        // Handle the response data here
+                    } else if (response.body() == null) {
+                        // Handle the error
+                        progressBar.hide()
+                        Snackbar.make(
+                            binding.root,
+                            getString(R.string.incorrect_details),
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                        btLogin.isEnabled = true
+
+                    } else {
+                        progressBar.hide()
+                        Snackbar.make(binding.root, R.string.login_failed, Snackbar.LENGTH_SHORT)
+                            .show()
+                        btLogin.isEnabled = true
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<LogInResponse>, t: Throwable) {
-                // Handle network or other errors
-                progressBar.hide()
-                Snackbar.make(binding.root, "${t.message}", Snackbar.LENGTH_SHORT).show()
-                Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
-            }
-        })
+                override fun onFailure(call: Call<LogInResponse>, t: Throwable) {
+                    // Handle network or other errors
+                    progressBar.hide()
+                    Snackbar.make(binding.root, "${t.message}", Snackbar.LENGTH_SHORT).show()
+                    Log.e("WARSANAPIERROR", "Failed because of: ${t.message}")
+                }
+            })
+        }
     }
 
     override fun onDestroyView() {

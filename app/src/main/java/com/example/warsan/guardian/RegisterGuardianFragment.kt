@@ -215,14 +215,16 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
             override fun onResponse(
                 call: Call<List<Location>>, response: Response<List<Location>>
             ) {
-                if (response.isSuccessful) {
+                if (response.isSuccessful && isAdded) {
                     val data: List<Location>? = response.body()
-                    Log.d("WARSANAPIRESPONSE", "$data")
-                    Toast.makeText(
-                        requireContext(),
-                        "Locations have been added",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    context?.let {
+                        Log.d("WARSANAPIRESPONSE", "$data")
+                        Toast.makeText(
+                            it,
+                            "Locations have been added",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
 
                     data?.let {
                         locationsList.clear()
@@ -238,10 +240,12 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
                         locationNames.add(it.region)
                     }
 
-                } else {
-                    Toast.makeText(
-                        requireContext(), R.string.location_nonexistent, Toast.LENGTH_SHORT
-                    ).show()
+                } else if (isAdded) {
+                    context?.let {
+                        Toast.makeText(
+                            requireContext(), R.string.location_nonexistent, Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
 
@@ -286,14 +290,17 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
                 override fun onResponse(
                     call: Call<SuccessResponse>, response: Response<SuccessResponse>
                 ) {
-                    if (response.isSuccessful) {
+                    if (response.isSuccessful && isAdded) {
                         val data: SuccessResponse? = response.body()
                         Log.d("REGISTER RESPONSE", "$data")
-                        Snackbar.make(
-                            binding.root,
-                            "Guardian has been added",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+
+                        context?.let {
+                            Toast.makeText(
+                                it,
+                                "Guardian has been added",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         //Pass guardian phone number while navigating  to children list fragment
                         val guardiansPhoneNumber = data?.phoneNumber
 
@@ -310,34 +317,15 @@ class RegisterGuardianFragment : Fragment(), LocationSelectedCallback {
 
 
                     } else {
+                        Log.e("WARSAN API ERROR", response.body().toString())
 
-                        val errorResponseBody = response.errorBody()?.toString()
-
-                        val errorResponse =
-                            Gson().fromJson(errorResponseBody, ErrorResponse::class.java)
-
-                        if (errorResponse.phoneNumber.isNotEmpty()) {
-                            val errorMessage = errorResponse.phoneNumber[0]
-                            Snackbar.make(
-                                binding.root,
-                                errorMessage,
-                                Snackbar.LENGTH_SHORT
-                            ).show()
-                            progressIndicator.hide()
-                            btSaveGuardian.isEnabled = true
-                            Log.d("WARSAN API ERROR", response.body().toString())
-
-                        } else {
-                            // Handle the error
-                            Snackbar.make(
-                                binding.root,
-                                "Something went wrong, please try again",
-                                Snackbar.LENGTH_SHORT
-                            ).show()
-                            progressIndicator.hide()
-                            btSaveGuardian.isEnabled = true
-
-                        }
+                        Snackbar.make(
+                            binding.root,
+                            "Something went wrong. Check the details and try again",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                        progressIndicator.hide()
+                        btSaveGuardian.isEnabled = true
                     }
 
                 }

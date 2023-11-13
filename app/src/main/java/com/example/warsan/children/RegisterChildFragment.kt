@@ -79,7 +79,13 @@ class RegisterChildFragment : Fragment() {
 
 
         layoutDOB.setOnClickListener {
-            getDateOfBirth()
+            tVDOB.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.black
+                )
+            )
+            getDateOfBirth(tVDOB)
         }
         binding.tabRegisterChild.setNavigationOnClickListener {
             navController.popBackStack()
@@ -162,7 +168,7 @@ class RegisterChildFragment : Fragment() {
             )
             isValid = false
         } else {
-            tVDOB.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            tVDOB.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         }
         if (isGenderSelected()) {
             layoutGender.error = "Gender is required"
@@ -289,7 +295,7 @@ class RegisterChildFragment : Fragment() {
 
     }
 
-    private fun getDateOfBirth() {
+    private fun getDateOfBirth(textView: TextView) {
 
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -300,7 +306,7 @@ class RegisterChildFragment : Fragment() {
             requireContext(),
             { _, selectedYear, selectedMonth, selectedDay ->
                 val selectedDate = "$selectedYear-${selectedMonth + 1}-$selectedDay"
-                tVDOB.text = selectedDate
+                textView.text = selectedDate
 
                 selectedDOB = selectedDate
 

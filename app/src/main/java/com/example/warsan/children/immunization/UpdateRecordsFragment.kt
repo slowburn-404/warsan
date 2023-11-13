@@ -1,6 +1,7 @@
 package com.example.warsan.children.immunization
 
 import android.app.DatePickerDialog
+import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
@@ -71,7 +72,9 @@ class UpdateRecordsFragment : Fragment() {
         progressIndicator.hide()
 
         binding.tabAddRecords.title = "${args.childObject.firstName} ${args.childObject.lastName}"
-        binding.tabAddRecords.subtitle = args.childObject.dateOfBirth
+
+        val ageInMonths = calculateAgeInMonths(args.childObject.dateOfBirth)
+        binding.tabAddRecords.subtitle = "$ageInMonths months"
 
         binding.btSubmit.setOnClickListener {
             sendImmunizationRecordToAPI()
@@ -87,6 +90,9 @@ class UpdateRecordsFragment : Fragment() {
         }
         atVaccine.setOnItemClickListener { _, _, _, _ ->
             layoutVaccine.error = null
+        }
+        binding.tabAddRecords.setNavigationOnClickListener {
+            navController.popBackStack()
         }
 
 
@@ -164,10 +170,12 @@ class UpdateRecordsFragment : Fragment() {
                         vaccinesAdapter.notifyDataSetChanged()
                         setAutoCompleteTextViewAdapter()
                     }
-                } else {
-                    Toast.makeText(
-                        requireContext(), "Cannot retrieve vaccines", Toast.LENGTH_SHORT
-                    ).show()
+                } else if(isAdded){
+                    context?.let {
+                        Toast.makeText(
+                            requireContext(), "Cannot retrieve vaccines", Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
 
@@ -331,6 +339,20 @@ class UpdateRecordsFragment : Fragment() {
     private fun isNextDueDateEmpty(text: String?): Boolean {
         return text.isNullOrEmpty()
 
+    }
+    private fun calculateAgeInMonths(dateOfBirth: String): Int {
+        // Parse the date of birth
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val dob = Calendar.getInstance()
+        dob.time = dateFormat.parse(dateOfBirth)!!
+
+        // Get the current date
+        val currentDate = Calendar.getInstance()
+
+        // Calculate the age in months
+
+        return (currentDate[Calendar.YEAR] - dob[Calendar.YEAR]) * 12 +
+                currentDate[Calendar.MONTH] - dob[Calendar.MONTH]
     }
 
 

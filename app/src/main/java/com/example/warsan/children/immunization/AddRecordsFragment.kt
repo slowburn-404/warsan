@@ -2,6 +2,7 @@ package com.example.warsan.children.immunization
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
@@ -48,7 +49,7 @@ class AddRecordsFragment : Fragment() {
     private lateinit var btSubmit: MaterialButton
     private lateinit var progressIndicator: CircularProgressIndicator
 
-    private  var selectedDateAdmin: String? = null
+    private var selectedDateAdmin: String? = null
     private var selectedNextDueDate: String? = null
 
     private val vaccinesList = mutableListOf<Vaccines>()
@@ -70,7 +71,9 @@ class AddRecordsFragment : Fragment() {
         progressIndicator.hide()
 
         binding.tabAddRecords.title = "${args.childObject.firstName} ${args.childObject.lastName}"
-        binding.tabAddRecords.subtitle = args.childObject.dateOfBirth
+
+        val ageInMonths = calculateAgeInMonths(args.childObject.dateOfBirth)
+        binding.tabAddRecords.subtitle = "$ageInMonths months"
 
         binding.tabAddRecords.setNavigationOnClickListener {
             navController.popBackStack()
@@ -88,7 +91,7 @@ class AddRecordsFragment : Fragment() {
             nextDueDate.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
             getNextDueDate(nextDueDate)
         }
-        atVaccine.setOnItemClickListener{_, _, _, _ ->
+        atVaccine.setOnItemClickListener { _, _, _, _ ->
             layoutVaccine.error = null
         }
 
@@ -117,6 +120,7 @@ class AddRecordsFragment : Fragment() {
 
         datePickerDialog.show()
     }
+
     private fun getNextDueDate(textView: TextView) {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -166,10 +170,14 @@ class AddRecordsFragment : Fragment() {
                         vaccinesAdapter.notifyDataSetChanged()
                         setAutoCompleteTextViewAdapter()
                     }
-                } else {
-                    Toast.makeText(
-                        requireContext(), "Cannot retrieve vaccines", Toast.LENGTH_SHORT
-                    ).show()
+                } else if (isAdded) {
+                    context?.let {
+                        Toast.makeText(
+                            it,
+                            "Failed to retrieve vaccines",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
 
@@ -213,13 +221,7 @@ class AddRecordsFragment : Fragment() {
                             "Immunization Record Added",
                             Toast.LENGTH_SHORT
                         ).show()
-
-                        val childObject = AddChildResponseParcelable(
-                            args.childObject.id,
-                            args.childObject.firstName,
-                            args.childObject.lastName,
-                            args.childObject.dateOfBirth
-                        )
+                        val childObject = AddChildResponseParcelable(args.childObject.id, args.childObject.firstName, args.childObject.lastName, args.childObject.dateOfBirth)
 
                         val action =
                             AddRecordsFragmentDirections.actionAddRecordsFragmentToImmunizationRecordsFragment3(
@@ -332,6 +334,21 @@ class AddRecordsFragment : Fragment() {
     private fun isNextDueDateEmpty(text: String?): Boolean {
         return text.isNullOrEmpty()
 
+    }
+
+    private fun calculateAgeInMonths(dateOfBirth: String): Int {
+        // Parse the date of birth
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val dob = Calendar.getInstance()
+        dob.time = dateFormat.parse(dateOfBirth)!!
+
+        // Get the current date
+        val currentDate = Calendar.getInstance()
+
+        // Calculate the age in months
+
+        return (currentDate[Calendar.YEAR] - dob[Calendar.YEAR]) * 12 +
+                currentDate[Calendar.MONTH] - dob[Calendar.MONTH]
     }
 
 

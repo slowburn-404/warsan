@@ -56,7 +56,6 @@ class TwelveToEighteenMonthsFragment : Fragment() {
         binding.btLogin.isEnabled = false
 
         immunizationDetailsListForRecyclerView.clear()
-        immunizationDetailsListForRecyclerView.clear()
         getVaccines()
         fetchImmunizationRecords(childObject.id)
         setUpRecyclerViewAdapter()
@@ -151,7 +150,7 @@ class TwelveToEighteenMonthsFragment : Fragment() {
         // Calculate the end date (6 months from the start date)
         val endDate = Calendar.getInstance().apply {
             time = startDate.time
-            add(Calendar.MONTH, 12)
+            add(Calendar.MONTH, 18)
         }
         Log.d("End date", endDate.time.toString())
 

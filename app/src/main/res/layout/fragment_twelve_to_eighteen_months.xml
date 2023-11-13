@@ -59,8 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_immunization_details"
-            android:visibility="visible"/>
+            tools:listitem="@layout/item_immunization_details"/>
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/twelveToEighteenCircularProgressIndicator"
@@ -119,8 +118,7 @@
         android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="8dp"
-        android:padding="8dp"
+        android:layout_margin="4dp"
         android:text="@string/update_records" />
 
 </LinearLayout>

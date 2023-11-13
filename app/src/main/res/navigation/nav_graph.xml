@@ -126,6 +126,9 @@
         <argument
             android:name="childObject"
             app:argType="com.example.warsan.models.AddChildResponseParcelable" />
+        <action
+            android:id="@+id/action_addRecordsFragment_to_childrenListFragment"
+            app:destination="@id/childrenListFragment" />
     </fragment>
     <fragment
         android:id="@+id/zeroToSixMonthsFragment"

@@ -152,7 +152,7 @@ class ZeroToSixMonthsFragment : Fragment() {
         // Calculate the end date (6 months from the start date)
         val endDate = Calendar.getInstance().apply {
             time = startDate.time
-            add(Calendar.MONTH, 12)
+            add(Calendar.MONTH, 6)
         }
         Log.d("End date", endDate.time.toString())
 
