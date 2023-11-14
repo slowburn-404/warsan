@@ -68,7 +68,7 @@ class SixToTwelveMonthsFragment : Fragment() {
         }
         immunizationDetailsListForRecyclerView.clear()
         getVaccines()
-        fetchImmunizationRecords(childObject.id)
+        fetchImmunizationRecordsForSixToTwelveMonths(childObject.id)
         setUpRecyclerViewAdapter()
 
         return binding.root
@@ -78,10 +78,11 @@ class SixToTwelveMonthsFragment : Fragment() {
         immunizationDetailsAdapter =
             ImmunizationDetailsAdapter(immunizationDetailsListForRecyclerView)
         binding.rvSixToTwelveMonths.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvSixToTwelveMonths.setHasFixedSize(true)
         binding.rvSixToTwelveMonths.adapter = immunizationDetailsAdapter
     }
 
-    private fun fetchImmunizationRecords(childID: Int) {
+    private fun fetchImmunizationRecordsForSixToTwelveMonths(childID: Int) {
         progressIndicator.show()
         val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
         val call = warsanAPI.getImmunizationRecords(childID)
@@ -142,10 +143,11 @@ class SixToTwelveMonthsFragment : Fragment() {
         }
         Log.d("Start date", startDate.time.toString())
 
-        // Calculate the end date (6 months from the start date)
+        //Calculate the end date between 6 and 12 months
+        val endMonthRange = (6 until 12).random()
         val endDate = Calendar.getInstance().apply {
             time = startDate.time
-            add(Calendar.MONTH, 12)
+            add(Calendar.MONTH, endMonthRange)
         }
         Log.d("End date", endDate.time.toString())
 
@@ -153,7 +155,9 @@ class SixToTwelveMonthsFragment : Fragment() {
         val filteredData = immunizationDetailsListFromAPI?.filter { vaccinatedChild ->
             vaccinatedChild.vaccineAdministrationSet.any { administration ->
                 val vaccineDate = dateFormat.parse(administration.dateOfAdministration)
-                vaccineDate in startDate.time..endDate.time
+                val sixToTwelveMonthsDifference = calculateMonthsDifference(startDate, vaccineDate)
+                
+                sixToTwelveMonthsDifference in 6..11
             }
         }
 
@@ -168,6 +172,18 @@ class SixToTwelveMonthsFragment : Fragment() {
             }
         }
         immunizationDetailsAdapter.updateData(immunizationDetailsListForRecyclerView)
+    }
+
+    // Function to calculate the difference in months between two dates
+    private fun calculateMonthsDifference(startDate: Calendar, endDate: Date?): Int {
+        val endCalendar = Calendar.getInstance().apply {
+            time = endDate ?: return 0
+        }
+
+        val yearDiff = endCalendar.get(Calendar.YEAR) - startDate.get(Calendar.YEAR)
+        val monthDiff = endCalendar.get(Calendar.MONTH) - startDate.get(Calendar.MONTH)
+
+        return yearDiff * 12 + monthDiff
     }
 
 

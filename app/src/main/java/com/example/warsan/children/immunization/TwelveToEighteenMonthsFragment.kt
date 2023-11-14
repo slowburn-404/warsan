@@ -48,6 +48,8 @@ class TwelveToEighteenMonthsFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentTwelveToEighteenMonthsBinding.inflate(inflater, container, false)
 
+        setUpRecyclerViewAdapter()
+
         val args: ImmunizationRecordsFragmentArgs by navArgs()
         val childObject = args.childObject
         progressIndicator = binding.twelveToEighteenCircularProgressIndicator
@@ -57,8 +59,7 @@ class TwelveToEighteenMonthsFragment : Fragment() {
 
         immunizationDetailsListForRecyclerView.clear()
         getVaccines()
-        fetchImmunizationRecords(childObject.id)
-        setUpRecyclerViewAdapter()
+        fetchImmunizationRecordsForTwelveToEighteenMonths(childObject.id)
 
 
         binding.btLogin.setOnClickListener {
@@ -79,14 +80,16 @@ class TwelveToEighteenMonthsFragment : Fragment() {
 
         return binding.root
     }
+
     private fun setUpRecyclerViewAdapter() {
         immunizationDetailsAdapter =
             ImmunizationDetailsAdapter(immunizationDetailsListForRecyclerView)
         binding.rvTwelveToEighteenMonths.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvTwelveToEighteenMonths.setHasFixedSize(true)
         binding.rvTwelveToEighteenMonths.adapter = immunizationDetailsAdapter
     }
 
-    private fun fetchImmunizationRecords(childID: Int) {
+    private fun fetchImmunizationRecordsForTwelveToEighteenMonths(childID: Int) {
         progressIndicator.show()
         val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
         val call = warsanAPI.getImmunizationRecords(childID)
@@ -147,10 +150,11 @@ class TwelveToEighteenMonthsFragment : Fragment() {
         }
         Log.d("Start date", startDate.time.toString())
 
-        // Calculate the end date (6 months from the start date)
+        //Calculate the end date between 12 and 18 months
+        val endMonthRange = (12 until 18).random()
         val endDate = Calendar.getInstance().apply {
             time = startDate.time
-            add(Calendar.MONTH, 18)
+            add(Calendar.MONTH, endMonthRange)
         }
         Log.d("End date", endDate.time.toString())
 
@@ -158,7 +162,9 @@ class TwelveToEighteenMonthsFragment : Fragment() {
         val filteredData = immunizationDetailsListFromAPI?.filter { vaccinatedChild ->
             vaccinatedChild.vaccineAdministrationSet.any { administration ->
                 val vaccineDate = dateFormat.parse(administration.dateOfAdministration)
-                vaccineDate in startDate.time..endDate.time
+                val twelveToSixMonthsDifference = calculateMonthsDifference(startDate, vaccineDate)
+
+                twelveToSixMonthsDifference in 12..17
             }
         }
 
@@ -173,6 +179,18 @@ class TwelveToEighteenMonthsFragment : Fragment() {
             }
         }
         immunizationDetailsAdapter.updateData(immunizationDetailsListForRecyclerView)
+    }
+
+    // Function to calculate the difference in months between two dates
+    private fun calculateMonthsDifference(startDate: Calendar, endDate: Date?): Int {
+        val endCalendar = Calendar.getInstance().apply {
+            time = endDate ?: return 0
+        }
+
+        val yearDiff = endCalendar.get(Calendar.YEAR) - startDate.get(Calendar.YEAR)
+        val monthDiff = endCalendar.get(Calendar.MONTH) - startDate.get(Calendar.MONTH)
+
+        return yearDiff * 12 + monthDiff
     }
 
 

@@ -47,6 +47,8 @@ class ZeroToSixMonthsFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentZeroToSixMonthsBinding.inflate(inflater, container, false)
 
+        setUpRecyclerViewAdapter()
+
         val args: ZeroToSixMonthsFragmentArgs by navArgs()
         val childObject = args.childObject
 
@@ -58,8 +60,7 @@ class ZeroToSixMonthsFragment : Fragment() {
 
         immunizationDetailsListForRecyclerView.clear()
         getVaccines()
-        fetchImmunizationRecords(childObject.id)
-        setUpRecyclerViewAdapter()
+        fetchImmunizationRecordsForZeroToSixMonths(childObject.id)
 
         binding.btLogin.setOnClickListener {
             val childObject = AddChildResponseParcelable(
@@ -85,10 +86,11 @@ class ZeroToSixMonthsFragment : Fragment() {
         immunizationDetailsAdapter =
             ImmunizationDetailsAdapter(immunizationDetailsListForRecyclerView)
         binding.rvZeroToSixMonths.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvZeroToSixMonths.setHasFixedSize(true)
         binding.rvZeroToSixMonths.adapter = immunizationDetailsAdapter
     }
 
-    private fun fetchImmunizationRecords(childID: Int) {
+    private fun fetchImmunizationRecordsForZeroToSixMonths(childID: Int) {
         progressIndicator.show()
         val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)
         val call = warsanAPI.getImmunizationRecords(childID)
@@ -149,24 +151,28 @@ class ZeroToSixMonthsFragment : Fragment() {
         }
         Log.d("Start date", startDate.time.toString())
 
-        // Calculate the end date (6 months from the start date)
+        /* Calculate the end date (6 months from the start date)
+        val endMonthRange = (0 until 6).random()
         val endDate = Calendar.getInstance().apply {
             time = startDate.time
-            add(Calendar.MONTH, 6)
+            add(Calendar.MONTH, endMonthRange)
         }
-        Log.d("End date", endDate.time.toString())
+        Log.d("End date", endDate.time.toString())*/
 
-        // Filter the data based on the date range
-        val filteredData = immunizationDetailsListFromAPI?.filter { vaccinatedChild ->
+        // Filter the data based on the date of administration
+        val filteredData = immunizationDetailsListFromAPI.filter { vaccinatedChild ->
             vaccinatedChild.vaccineAdministrationSet.any { administration ->
                 val vaccineDate = dateFormat.parse(administration.dateOfAdministration)
-                vaccineDate in startDate.time..endDate.time
+                val zeroToSixMonthsDifference =
+                    calculateMonthsDifference(startDate, vaccineDate)
+
+                zeroToSixMonthsDifference in 0..6
+
             }
         }
 
         // Convert filtered data to ImmunizationDetails and display in the UI
-        immunizationDetailsListForRecyclerView.clear()
-        filteredData?.forEach { vaccinatedChild ->
+        filteredData.forEach { vaccinatedChild ->
             convertVaccinatedChildToImmunizationDetails(vaccinatedChild).let {
                 immunizationDetailsListForRecyclerView.addAll(it)
 
@@ -177,6 +183,17 @@ class ZeroToSixMonthsFragment : Fragment() {
         immunizationDetailsAdapter.updateData(immunizationDetailsListForRecyclerView)
     }
 
+    // Function to calculate the difference in months between two dates
+    private fun calculateMonthsDifference(startDate: Calendar, endDate: Date?): Int {
+        val endCalendar = Calendar.getInstance().apply {
+            time = endDate ?: return 0
+        }
+
+        val yearDiff = endCalendar.get(Calendar.YEAR) - startDate.get(Calendar.YEAR)
+        val monthDiff = endCalendar.get(Calendar.MONTH) - startDate.get(Calendar.MONTH)
+
+        return yearDiff * 12 + monthDiff
+    }
 
     private fun getVaccines() {
         val warsanAPI = RetrofitClient.instance.create(WarsanAPI::class.java)

@@ -50,13 +50,13 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="320dp"
         android:layout_gravity="center_horizontal">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvSixToTwelveMonths"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
             android:orientation="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -118,8 +118,7 @@
         android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|bottom"
-        android:layout_margin="8dp"
-        android:padding="8dp"
+        android:layout_margin="4dp"
         android:text="@string/update_records" />
 
 </LinearLayout>

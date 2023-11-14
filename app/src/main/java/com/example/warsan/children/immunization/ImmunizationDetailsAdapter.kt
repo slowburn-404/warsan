@@ -18,26 +18,31 @@ class ImmunizationDetailsAdapter(
             binding.tvNextDate.text = vaccine.dateTaken
         }
     }
-    
+
     fun updateData(newList: List<ImmunizationDetails>) {
-    immunizationDetailsList.clear()
-    immunizationDetailsList.addAll(newList)
-    notifyDataSetChanged()
-}
+        immunizationDetailsList.addAll(newList)
+        notifyDataSetChanged()
+    }
 
 
     override fun onCreateViewHolder(
         parent: ViewGroup, viewType: Int
     ): ImmunizationDetailsAdapter.ImmunizationDetailsViewHolder {
-        val binding = ItemImmunizationDetailsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemImmunizationDetailsBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
         return ImmunizationDetailsViewHolder(binding)
     }
 
     override fun onBindViewHolder(
         holder: ImmunizationDetailsAdapter.ImmunizationDetailsViewHolder, position: Int
     ) {
+        holder.setIsRecyclable(false)
         val item = immunizationDetailsList[position]
         holder.bind(item)
+
     }
 
     override fun getItemCount() = immunizationDetailsList.size
