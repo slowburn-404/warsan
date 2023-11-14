@@ -258,6 +258,7 @@ class RegisterChildFragment : Fragment() {
                                 )
                             }
                             navigateTAddRecordsFragment?.let {
+
                                 navController.navigate(navigateTAddRecordsFragment)
                             }
                         } else {
