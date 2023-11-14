@@ -22,6 +22,7 @@ import com.example.warsan.network.RetrofitClient
 import com.example.warsan.network.WarsanAPI
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.snackbar.Snackbar
+import okhttp3.internal.notify
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -46,8 +47,6 @@ class ZeroToSixMonthsFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         _binding = FragmentZeroToSixMonthsBinding.inflate(inflater, container, false)
-
-        setUpRecyclerViewAdapter()
 
         val args: ZeroToSixMonthsFragmentArgs by navArgs()
         val childObject = args.childObject
@@ -82,7 +81,7 @@ class ZeroToSixMonthsFragment : Fragment() {
         return binding.root
     }
 
-    private fun setUpRecyclerViewAdapter() {
+    private fun addImmunizationDetailsToRecyclerView(immunizationDetailsListForRecyclerView: MutableList<ImmunizationDetails>) {
         immunizationDetailsAdapter =
             ImmunizationDetailsAdapter(immunizationDetailsListForRecyclerView)
         binding.rvZeroToSixMonths.layoutManager = LinearLayoutManager(requireContext())
@@ -151,14 +150,6 @@ class ZeroToSixMonthsFragment : Fragment() {
         }
         Log.d("Start date", startDate.time.toString())
 
-        /* Calculate the end date (6 months from the start date)
-        val endMonthRange = (0 until 6).random()
-        val endDate = Calendar.getInstance().apply {
-            time = startDate.time
-            add(Calendar.MONTH, endMonthRange)
-        }
-        Log.d("End date", endDate.time.toString())*/
-
         // Filter the data based on the date of administration
         val filteredData = immunizationDetailsListFromAPI.filter { vaccinatedChild ->
             vaccinatedChild.vaccineAdministrationSet.any { administration ->
@@ -174,13 +165,14 @@ class ZeroToSixMonthsFragment : Fragment() {
         // Convert filtered data to ImmunizationDetails and display in the UI
         filteredData.forEach { vaccinatedChild ->
             convertVaccinatedChildToImmunizationDetails(vaccinatedChild).let {
+                immunizationDetailsListForRecyclerView.clear()
                 immunizationDetailsListForRecyclerView.addAll(it)
 
                 Log.d("Filtered data", it.toString())
                 Log.d("rvImmunization", immunizationDetailsListForRecyclerView.toString())
             }
         }
-        immunizationDetailsAdapter.updateData(immunizationDetailsListForRecyclerView)
+        addImmunizationDetailsToRecyclerView(immunizationDetailsListForRecyclerView)
     }
 
     // Function to calculate the difference in months between two dates

@@ -19,12 +19,6 @@ class ImmunizationDetailsAdapter(
         }
     }
 
-    fun updateData(newList: List<ImmunizationDetails>) {
-        immunizationDetailsList.addAll(newList)
-        notifyDataSetChanged()
-    }
-
-
     override fun onCreateViewHolder(
         parent: ViewGroup, viewType: Int
     ): ImmunizationDetailsAdapter.ImmunizationDetailsViewHolder {
@@ -39,7 +33,6 @@ class ImmunizationDetailsAdapter(
     override fun onBindViewHolder(
         holder: ImmunizationDetailsAdapter.ImmunizationDetailsViewHolder, position: Int
     ) {
-        holder.setIsRecyclable(false)
         val item = immunizationDetailsList[position]
         holder.bind(item)
 

@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -48,7 +47,6 @@ class TwelveToEighteenMonthsFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentTwelveToEighteenMonthsBinding.inflate(inflater, container, false)
 
-        setUpRecyclerViewAdapter()
 
         val args: ImmunizationRecordsFragmentArgs by navArgs()
         val childObject = args.childObject
@@ -81,7 +79,7 @@ class TwelveToEighteenMonthsFragment : Fragment() {
         return binding.root
     }
 
-    private fun setUpRecyclerViewAdapter() {
+    private fun addImmunizationDetailsToRecyclerView(immunizationDetailsListForRecyclerView: MutableList<ImmunizationDetails>) {
         immunizationDetailsAdapter =
             ImmunizationDetailsAdapter(immunizationDetailsListForRecyclerView)
         binding.rvTwelveToEighteenMonths.layoutManager = LinearLayoutManager(requireContext())
@@ -159,7 +157,7 @@ class TwelveToEighteenMonthsFragment : Fragment() {
         Log.d("End date", endDate.time.toString())
 
         // Filter the data based on the date range
-        val filteredData = immunizationDetailsListFromAPI?.filter { vaccinatedChild ->
+        val filteredData = immunizationDetailsListFromAPI.filter { vaccinatedChild ->
             vaccinatedChild.vaccineAdministrationSet.any { administration ->
                 val vaccineDate = dateFormat.parse(administration.dateOfAdministration)
                 val twelveToSixMonthsDifference = calculateMonthsDifference(startDate, vaccineDate)
@@ -170,15 +168,16 @@ class TwelveToEighteenMonthsFragment : Fragment() {
 
         // Convert filtered data to ImmunizationDetails and display in the UI
         immunizationDetailsListForRecyclerView.clear()
-        filteredData?.forEach { vaccinatedChild ->
+        filteredData.forEach { vaccinatedChild ->
             convertVaccinatedChildToImmunizationDetails(vaccinatedChild).let {
+                immunizationDetailsListForRecyclerView.clear()
                 immunizationDetailsListForRecyclerView.addAll(it)
 
                 Log.d("Filtered data", it.toString())
                 Log.d("rvImmunization", immunizationDetailsListForRecyclerView.toString())
             }
         }
-        immunizationDetailsAdapter.updateData(immunizationDetailsListForRecyclerView)
+        addImmunizationDetailsToRecyclerView(immunizationDetailsListForRecyclerView)
     }
 
     // Function to calculate the difference in months between two dates

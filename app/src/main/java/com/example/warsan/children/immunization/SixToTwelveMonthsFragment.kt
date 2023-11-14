@@ -69,12 +69,11 @@ class SixToTwelveMonthsFragment : Fragment() {
         immunizationDetailsListForRecyclerView.clear()
         getVaccines()
         fetchImmunizationRecordsForSixToTwelveMonths(childObject.id)
-        setUpRecyclerViewAdapter()
 
         return binding.root
     }
 
-    private fun setUpRecyclerViewAdapter() {
+    private fun addImmunizationDetailsToRecyclerView(immunizationDetailsListForRecyclerView: MutableList<ImmunizationDetails>) {
         immunizationDetailsAdapter =
             ImmunizationDetailsAdapter(immunizationDetailsListForRecyclerView)
         binding.rvSixToTwelveMonths.layoutManager = LinearLayoutManager(requireContext())
@@ -152,7 +151,7 @@ class SixToTwelveMonthsFragment : Fragment() {
         Log.d("End date", endDate.time.toString())
 
         // Filter the data based on the date range
-        val filteredData = immunizationDetailsListFromAPI?.filter { vaccinatedChild ->
+        val filteredData = immunizationDetailsListFromAPI.filter { vaccinatedChild ->
             vaccinatedChild.vaccineAdministrationSet.any { administration ->
                 val vaccineDate = dateFormat.parse(administration.dateOfAdministration)
                 val sixToTwelveMonthsDifference = calculateMonthsDifference(startDate, vaccineDate)
@@ -163,15 +162,16 @@ class SixToTwelveMonthsFragment : Fragment() {
 
         // Convert filtered data to ImmunizationDetails and display in the UI
         immunizationDetailsListForRecyclerView.clear()
-        filteredData?.forEach { vaccinatedChild ->
+        filteredData.forEach { vaccinatedChild ->
             convertVaccinatedChildToImmunizationDetails(vaccinatedChild).let {
+                immunizationDetailsListForRecyclerView.clear()
                 immunizationDetailsListForRecyclerView.addAll(it)
 
                 Log.d("Filtered data", it.toString())
                 Log.d("rvImmunization", immunizationDetailsListForRecyclerView.toString())
             }
         }
-        immunizationDetailsAdapter.updateData(immunizationDetailsListForRecyclerView)
+            addImmunizationDetailsToRecyclerView(immunizationDetailsListForRecyclerView)
     }
 
     // Function to calculate the difference in months between two dates
