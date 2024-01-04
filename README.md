@@ -15,10 +15,10 @@ Warsan project that tracks immunization records.
 - 'CRUD' operations by making `GET`, `POST` and `PUT` requests to a REST API
 
 **Screenshots:**
-<p align="center">
-<img width ="100" height="100" src="screenshots/splash.jpg" alt="Splash" style="padding: 20px">
-<img width ="100" height="100" src="screenshots/login.jpg" alt="Login" style="padding: 20px">
-<img width ="100" height="100" src="screenshots/register_guardian.jpg" alt="Register Guardian" style="padding: 20px">
+<p allign="center">
+<img src="screenshots/splash.jpg" alt="Splash" style="padding: 20px">
+<img src="screenshots/login.jpg" alt="Login" style="padding: 20px">
+<img src="screenshots/register_guardian.jpg" alt="Register Guardian" style="padding: 20px">
 <img src="screenshots/children.jpg" alt="Guardian's children" style="padding: 20px">
 <img src="screenshots/register_child.jpg" alt="Register child" style="padding: 20px">
 <img src="screenshots/vaccine.jpg" alt="Vaccine administered" style="padding: 20px">
