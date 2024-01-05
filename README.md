@@ -16,13 +16,11 @@ Warsan project that tracks immunization records.
 
 **Screenshots:**
 <p allign="center">
-<img src="screenshots/splash.jpg" alt="Splash" style="padding: 20px">
-<img src="screenshots/login.jpg" alt="Login" style="padding: 20px">
-<img src="screenshots/register_guardian.jpg" alt="Register Guardian" style="padding: 20px">
-<img src="screenshots/children.jpg" alt="Guardian's children" style="padding: 20px">
-<img src="screenshots/register_child.jpg" alt="Register child" style="padding: 20px">
-<img src="screenshots/vaccine.jpg" alt="Vaccine administered" style="padding: 20px">
-<img src="screenshots/records.jpg" alt="Immunization records" style="padding: 20px">
+<img src="screenshots/splash.png" alt="Splash" style="padding: 20px" width="200">
+<img src="screenshots/login.png" alt="Login" style="padding: 20px"width="200">
+<img src="screenshots/children.png" alt="Guardian's children" style="padding: 20px" width="200">
+<img src="screenshots/vaccine.png" alt="Register child" style="padding: 20px" width="200">
+<img src="screenshots/records.png" alt="Immunization records" style="padding: 20px" width="200">
 </p>
 
 **Getting Started:**
@@ -33,7 +31,7 @@ Warsan project that tracks immunization records.
 git clone https://github.com/slowburn-404/warsan.git
 ```
 
-2. Configure dependencies.
+2. Configure dependencies in your app level ```build.gradle``` file.
 
 ```kotlin
 // Retrofit
